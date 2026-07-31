@@ -1,3 +1,6 @@
 .DS_Store
 Thumbs.db
 *.log
+
+# Working specification, kept local
+plan.md

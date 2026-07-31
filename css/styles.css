@@ -581,6 +581,13 @@ summary {
   font-weight: 600;
 }
 
+/* Inline rather than a flex child, so the disclosure triangle survives —
+   display:flex on a <summary> suppresses the marker in Chromium and WebKit. */
+summary .icon {
+  vertical-align: middle;
+  margin-right: 0.45rem;
+}
+
 .breakdown {
   margin: 1rem 0 0;
   padding-left: 1.3rem;

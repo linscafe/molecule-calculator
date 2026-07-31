@@ -341,7 +341,12 @@
         </section>
 
         <section class="card" id="uncertainty-card" aria-labelledby="uncertainty-heading" hidden>
-          <h2 id="uncertainty-heading" data-i18n="interval.heading">Estimated uncertainty interval</h2>
+          <h2 id="uncertainty-heading">
+            <svg class="icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+              <path d="M12 5v14M8 5h8M8 19h8M6 12h12" />
+            </svg>
+            <span data-i18n="interval.heading">Estimated uncertainty interval</span>
+          </h2>
           <p class="interval" id="interval"></p>
           <p class="interval-relative" id="interval-relative"></p>
           <div id="interval-warning"></div>
@@ -361,7 +366,13 @@
         </section>
 
         <details class="card" id="breakdown-card">
-          <summary data-i18n="breakdown.summary">Calculation details</summary>
+          <summary>
+            <svg class="icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+              <rect x="4" y="3" width="16" height="18" rx="2.5" />
+              <path d="M8 8h8M8 12h8M8 16h5" />
+            </svg>
+            <span data-i18n="breakdown.summary">Calculation details</span>
+          </summary>
           <ol class="breakdown" id="breakdown"></ol>
         </details>
       </div>

@@ -5,8 +5,8 @@
       <stop offset="0.5" stop-color="#1b5e9c" />
       <stop offset="1" stop-color="#0e3559" />
     </linearGradient>
-    <radialGradient id="sheen" cx="0.28" cy="0.2" r="0.85">
-      <stop offset="0" stop-color="#ffffff" stop-opacity="0.42" />
+    <radialGradient id="sheen" cx="0.18" cy="0.12" r="0.9">
+      <stop offset="0" stop-color="#ffffff" stop-opacity="0.4" />
       <stop offset="0.6" stop-color="#ffffff" stop-opacity="0.06" />
       <stop offset="1" stop-color="#ffffff" stop-opacity="0" />
     </radialGradient>
@@ -23,20 +23,21 @@
   <rect width="64" height="64" rx="15" fill="url(#tile)" />
   <rect width="64" height="64" rx="15" fill="url(#sheen)" />
 
-  <!-- Orbit, to read as "many of these" rather than one static diagram. -->
-  <ellipse cx="32" cy="33" rx="23" ry="10.5" fill="none" stroke="#bcdcfa"
-    stroke-opacity="0.4" stroke-width="1.6" transform="rotate(-24 32 33)" />
+  <!-- Same geometry as the header banner's emblem, so the tab icon and the
+       page read as one mark. Deliberately only four atoms: at 16px anything
+       smaller than these radii collapses into a smudge. -->
+  <ellipse cx="32" cy="34" rx="26" ry="12" fill="none" stroke="#bcdcfa"
+    stroke-opacity="0.3" stroke-width="1.5" transform="rotate(-14 32 34)" />
 
-  <!-- Bonds drawn under the atoms so the joins are hidden. -->
-  <g stroke="#cfe6fb" stroke-width="3" stroke-linecap="round" stroke-opacity="0.9">
-    <path d="M32 33 L18 21" />
-    <path d="M32 33 L47 22" />
-    <path d="M32 33 L33 50" />
+  <g stroke="#cfe6fb" stroke-width="3.4" stroke-linecap="round" stroke-opacity="0.9">
+    <path d="M32 34 L18 19" />
+    <path d="M32 34 L48 21" />
+    <path d="M32 34 L35 52" />
   </g>
 
-  <circle cx="18" cy="21" r="6.2" fill="url(#atom)" />
-  <circle cx="47" cy="22" r="5.4" fill="url(#atom)" />
-  <circle cx="33" cy="50" r="5.4" fill="url(#atom)" />
-  <circle cx="32" cy="33" r="8.4" fill="url(#core)" />
-  <circle cx="29.4" cy="30.2" r="2.6" fill="#ffffff" fill-opacity="0.75" />
+  <circle cx="18" cy="19" r="7" fill="url(#atom)" />
+  <circle cx="48" cy="21" r="6" fill="url(#atom)" />
+  <circle cx="35" cy="52" r="6" fill="url(#atom)" />
+  <circle cx="32" cy="34" r="10.5" fill="url(#core)" />
+  <circle cx="28.8" cy="30.8" r="3.2" fill="#ffffff" fill-opacity="0.72" />
 </svg>
