@@ -13,7 +13,12 @@
   --warning-bg: #fdf4e3;
   --warning-border: #d9a441;
   --warning-text: #6b4a08;
-  --radius: 10px;
+  --accent-deep: #123f6b;
+  --accent-bright: #3d8fd8;
+  --hero-bore-a: #d3e6f8;
+  --hero-bore-b: #a8cbea;
+  --shadow: 0 1px 2px rgba(18, 43, 71, 0.06), 0 8px 24px rgba(18, 43, 71, 0.07);
+  --radius: 14px;
   --gap: 1.25rem;
 }
 
@@ -26,14 +31,28 @@
 body {
   margin: 0;
   padding: 0 1rem 3rem;
-  background: var(--bg);
+  /* A soft wash in the corners over a faint dot grid, so the page reads as a
+     surface rather than a blank sheet. Fixed attachment on the washes keeps
+     them anchored while the grid scrolls with the content. */
+  background-color: var(--bg);
+  background-image:
+    radial-gradient(circle at 12% -8%, rgba(61, 143, 216, 0.16), transparent 46%),
+    radial-gradient(circle at 92% 2%, rgba(27, 94, 156, 0.12), transparent 40%),
+    radial-gradient(circle at 1px 1px, rgba(18, 63, 107, 0.055) 1px, transparent 0);
+  background-size: auto, auto, 22px 22px;
+  background-attachment: fixed, fixed, scroll;
   color: var(--text);
   font: 16px/1.55 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
 }
 
 h1 {
-  font-size: 1.6rem;
-  margin: 0 0 0.25rem;
+  font-size: clamp(1.6rem, 3.4vw, 2rem);
+  margin: 0 0 0.3rem;
+  letter-spacing: -0.015em;
+  background: linear-gradient(100deg, var(--accent-deep), var(--accent-bright));
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
 }
 
 h2 {
@@ -94,34 +113,81 @@ a {
 }
 
 .channel-illustration {
-  width: 240px;
-  height: 64px;
+  width: 320px;
+  max-width: 100%;
+  height: auto;
   flex: none;
 }
 
-.channel-wall {
-  fill: none;
+.hero-wall {
+  fill: #ffffff;
   stroke: var(--border);
-  stroke-width: 2;
+  stroke-width: 1.5;
 }
 
-.channel-bore {
+.hero-port {
   fill: var(--accent-soft);
+  stroke: var(--border);
+  stroke-width: 1.5;
 }
 
-.channel-molecules circle {
+.hero-port-eye {
   fill: var(--accent);
+  opacity: 0.55;
+}
+
+.hero-flow path {
+  stroke: var(--accent);
+  stroke-width: 1.2;
+  stroke-linecap: round;
+  opacity: 0.18;
+}
+
+.channel-illustration {
+  /* The drifting group's bounding box extends past the artboard; the SVG
+     clips it visually, and this keeps it out of the page's scroll width. */
+  overflow: hidden;
+}
+
+.hero-molecules circle {
+  fill: var(--accent);
+  opacity: 0.85;
+  /* Each circle carries its own --s (speed) and --d (negative delay, so the
+     stream is already mid-flow on load). Clipped to the bore, so molecules
+     appear at the inlet and vanish at the outlet. */
+  animation: drift 11s linear infinite;
+  animation-delay: var(--d, 0s);
+}
+
+@keyframes drift {
+  from {
+    transform: translateX(-10px);
+  }
+  to {
+    transform: translateX(276px);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .hero-molecules circle {
+    animation: none;
+  }
 }
 
 .icon {
-  width: 1.1em;
-  height: 1.1em;
+  width: 1.85rem;
+  height: 1.85rem;
+  padding: 0.4rem;
   flex: none;
   fill: none;
   stroke: currentColor;
-  stroke-width: 1.6;
+  stroke-width: 1.7;
   stroke-linecap: round;
   stroke-linejoin: round;
+  color: var(--accent);
+  background: linear-gradient(150deg, var(--accent-soft), #f3f8fd);
+  border: 1px solid var(--border);
+  border-radius: 9px;
 }
 
 /* ------------------------------------------------------------------ layout */
@@ -147,15 +213,39 @@ a {
 }
 
 .card {
+  position: relative;
   background: var(--surface);
   border: 1px solid var(--border);
   border-radius: var(--radius);
-  padding: 1.25rem;
+  padding: 1.35rem;
+  box-shadow: var(--shadow);
+}
+
+/* Gradient hairline along the top edge of every card. Radius is matched here
+   rather than clipping the card, so focus outlines are never cut off. */
+.card::before {
+  content: "";
+  position: absolute;
+  inset: 0 0 auto;
+  height: 3px;
+  border-radius: var(--radius) var(--radius) 0 0;
+  background: linear-gradient(
+    90deg,
+    var(--accent-deep),
+    var(--accent-bright) 45%,
+    #7fc4f2 75%,
+    transparent
+  );
 }
 
 /* ------------------------------------------------------------------ inputs */
 
+/* A <select> sizes itself to its widest option, and a <fieldset> will not
+   shrink below its content's min-content width — together they push the page
+   wider than the viewport on a phone. The biomarker list has long option
+   labels, so both guards are load-bearing, not defensive. */
 .field-group {
+  min-width: 0;
   border: 0;
   border-top: 1px solid var(--border);
   margin: 0 0 1rem;
@@ -211,6 +301,17 @@ select {
 }
 
 input[type="text"] {
+  width: 100%;
+}
+
+select {
+  max-width: 100%;
+}
+
+/* Full width rather than content width, so long biomarker labels are clipped
+   by the control instead of stretching the layout. */
+#biomarker,
+#concentration-type {
   width: 100%;
 }
 
@@ -321,6 +422,22 @@ button:hover {
 
 /* ----------------------------------------------------------------- results */
 
+.result-card {
+  background: linear-gradient(158deg, #ffffff 40%, #eef6fd);
+  overflow: hidden; /* clips the watermark; nothing focusable lives in here */
+}
+
+.result-watermark {
+  position: absolute;
+  right: -22px;
+  bottom: -30px;
+  width: 190px;
+  height: 190px;
+  color: var(--accent);
+  opacity: 0.07;
+  pointer-events: none;
+}
+
 .result-primary {
   font-size: clamp(1.6rem, 4vw, 2.2rem);
   font-weight: 650;
@@ -415,6 +532,12 @@ summary {
   padding-left: 1.3rem;
   display: grid;
   gap: 0.85rem;
+}
+
+/* Grid items default to min-content width, which lets a long formula line
+   stretch the card instead of scrolling inside its own <pre>. */
+.breakdown li {
+  min-width: 0;
 }
 
 .breakdown__title {

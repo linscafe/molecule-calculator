@@ -132,7 +132,7 @@ Support two concentration types through a dropdown:
 | Concentration type | Suggested units | Requires molecular weight? |
 | :-- | :-- | :-- |
 | Molar concentration | M, mM, µM, nM, pM, fM | No |
-| Mass concentration | g/L, mg/mL, µg/mL, ng/mL, g/m³ | Yes |
+| Mass concentration | g/L, mg/mL, µg/mL, ng/mL, pg/mL, g/m³ | Yes |
 
 For “molar concentration,” M means mol/L.
 
@@ -500,6 +500,33 @@ Two consequences follow, and both must be handled:
   mobile keyboards show a Go/Done key. Bind it to flush the debounce: calculate
   immediately, re-announce the result, and blur the field so the mobile keyboard
   dismisses.
+
+## Default values
+
+The page opens on a worked example rather than an empty form, so the first
+thing a visitor sees is a real result with its reasoning beside it. **Reset
+returns here** rather than blanking the form, so "default" means one thing.
+
+```text
+Height 1 µm   Width 1 µm   Length 10 µm
+Mass concentration 100 pg/mL
+Biomarker: CRP — pentamer, circulating (115 kDa)
+Uncertainty enabled, 1% on each of the five inputs
+
+→ 0.00524 ± 0.00012 molecules
+→ 99.5% of equivalent volumes contain none
+```
+
+This is deliberately the single-molecule regime. A 1 × 1 × 10 µm channel at
+trace immunoassay concentrations really does hold a fraction of a molecule, so
+the occupancy breakdown is on screen from the first paint rather than hidden
+behind an input the visitor has to guess at. The consequence to accept is that
+the below-one-molecule warning is visible on load; it is the correct reading of
+the scenario, not an error state.
+
+`pg/mL` was added to the mass-concentration units for this — the original list
+stopped at ng/mL, three orders of magnitude above where clinical immunoassays
+actually sit.
 
 ## Localisation
 

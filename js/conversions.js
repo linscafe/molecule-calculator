@@ -47,6 +47,8 @@ export const MASS_CONCENTRATION_UNITS = {
   'mg/mL': { label: 'mg/mL', toGramsPerLitre: 1 },
   'ug/mL': { label: 'µg/mL', toGramsPerLitre: 1e-3 },
   'ng/mL': { label: 'ng/mL', toGramsPerLitre: 1e-6 },
+  // Trace immunoassay range — a clinical CRP or troponin reading lives here.
+  'pg/mL': { label: 'pg/mL', toGramsPerLitre: 1e-9 },
   'g/m3': { label: 'g/m³', toGramsPerLitre: 1e-3 },
 };
 

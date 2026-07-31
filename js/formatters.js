@@ -121,6 +121,19 @@ export function readableCount(value, locale = 'en') {
 }
 
 /**
+ * Grouped decimal carrying exactly the decimals the uncertainty's place
+ * implies. Without this, a lower bound of 0.00500 renders as "0.005" beside an
+ * upper of "0.00547" and appears to carry fewer figures than it does.
+ */
+export function atPlace(value, place) {
+  const decimals = Math.max(0, -place);
+  return new Intl.NumberFormat('en-US', {
+    minimumFractionDigits: decimals,
+    maximumFractionDigits: decimals,
+  }).format(value);
+}
+
+/**
  * Round a value and its standard uncertainty so the value claims no more
  * precision than the uncertainty supports.
  *
@@ -150,9 +163,9 @@ export function countWithUncertainty(value, standardUncertainty, digits = 2) {
 
   const exponent = exponentOf(rounded.value || standardUncertainty);
   if (Math.abs(rounded.value) <= PLAIN_NOTATION_MAX) {
-    const decimals = Math.max(0, -rounded.place);
-    return `${groups.format(Number(rounded.value.toFixed(decimals)))} ± ${groups.format(
-      Number(rounded.uncertainty.toFixed(decimals)),
+    return `${atPlace(rounded.value, rounded.place)} ± ${atPlace(
+      rounded.uncertainty,
+      rounded.place,
     )}`;
   }
   const decimals = Math.max(0, exponent - rounded.place);

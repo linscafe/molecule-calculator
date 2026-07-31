@@ -1,11 +1,42 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32">
-  <rect width="32" height="32" rx="7" fill="#1b5e9c" />
-  <g fill="none" stroke="#ffffff" stroke-width="1.8" stroke-linecap="round">
-    <path d="M11 12.6l4.2 6.8M21 11.6l-4.4 7.6M12.6 10.2h6.6" />
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" role="img" aria-label="Molecule Calculator">
+  <defs>
+    <linearGradient id="tile" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#3d8fd8" />
+      <stop offset="0.5" stop-color="#1b5e9c" />
+      <stop offset="1" stop-color="#0e3559" />
+    </linearGradient>
+    <radialGradient id="sheen" cx="0.28" cy="0.2" r="0.85">
+      <stop offset="0" stop-color="#ffffff" stop-opacity="0.42" />
+      <stop offset="0.6" stop-color="#ffffff" stop-opacity="0.06" />
+      <stop offset="1" stop-color="#ffffff" stop-opacity="0" />
+    </radialGradient>
+    <linearGradient id="atom" x1="0.3" y1="0" x2="0.7" y2="1">
+      <stop offset="0" stop-color="#ffffff" />
+      <stop offset="1" stop-color="#bcdcfa" />
+    </linearGradient>
+    <linearGradient id="core" x1="0.3" y1="0" x2="0.7" y2="1">
+      <stop offset="0" stop-color="#9fe4ff" />
+      <stop offset="1" stop-color="#39a8e8" />
+    </linearGradient>
+  </defs>
+
+  <rect width="64" height="64" rx="15" fill="url(#tile)" />
+  <rect width="64" height="64" rx="15" fill="url(#sheen)" />
+
+  <!-- Orbit, to read as "many of these" rather than one static diagram. -->
+  <ellipse cx="32" cy="33" rx="23" ry="10.5" fill="none" stroke="#bcdcfa"
+    stroke-opacity="0.4" stroke-width="1.6" transform="rotate(-24 32 33)" />
+
+  <!-- Bonds drawn under the atoms so the joins are hidden. -->
+  <g stroke="#cfe6fb" stroke-width="3" stroke-linecap="round" stroke-opacity="0.9">
+    <path d="M32 33 L18 21" />
+    <path d="M32 33 L47 22" />
+    <path d="M32 33 L33 50" />
   </g>
-  <g fill="#ffffff">
-    <circle cx="10" cy="10" r="3.1" />
-    <circle cx="22" cy="9.6" r="3.1" />
-    <circle cx="16" cy="22" r="3.4" />
-  </g>
+
+  <circle cx="18" cy="21" r="6.2" fill="url(#atom)" />
+  <circle cx="47" cy="22" r="5.4" fill="url(#atom)" />
+  <circle cx="33" cy="50" r="5.4" fill="url(#atom)" />
+  <circle cx="32" cy="33" r="8.4" fill="url(#core)" />
+  <circle cx="29.4" cy="30.2" r="2.6" fill="#ffffff" fill-opacity="0.75" />
 </svg>

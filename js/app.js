@@ -31,6 +31,9 @@ import {
   volumeRelativeFromDimensions,
 } from './uncertainty.js';
 import {
+  PLAIN_NOTATION_MAX,
+  PLAIN_NOTATION_MIN,
+  atPlace,
   countWithUncertainty,
   exponentOf,
   percent,
@@ -50,9 +53,39 @@ const LOCALE_STORAGE_KEY = 'molecule-calculator.locale';
 const DEFAULT_UNITS = {
   'height-unit': 'um',
   'width-unit': 'um',
-  'length-unit': 'mm',
+  'length-unit': 'um',
   'volume-unit': 'uL',
   'molecular-weight-unit': 'g/mol',
+};
+
+/**
+ * The page opens on a worked example rather than an empty form, so the first
+ * thing a visitor sees is a real result with its reasoning beside it.
+ *
+ * A 1 x 1 x 10 µm channel holding CRP at 100 pg/mL contains 0.005 molecules —
+ * a 99.5% chance of being empty. That is not a contrived number: it is the
+ * single-molecule regime microfluidics actually works in, and it puts the
+ * occupancy breakdown on screen immediately.
+ *
+ * Reset returns here rather than to a blank form, so "default" means one thing.
+ */
+const DEFAULTS = {
+  concentrationType: 'mass',
+  units: {
+    'height-unit': 'um',
+    'width-unit': 'um',
+    'length-unit': 'um',
+    'concentration-unit': 'pg/mL',
+  },
+  values: { height: '1', width: '1', length: '10', concentration: '100' },
+  biomarker: 'crp-pentamer',
+  uncertainty: {
+    'u-height': '1',
+    'u-width': '1',
+    'u-length': '1',
+    'u-concentration': '1',
+    'u-molecular-weight': '1',
+  },
 };
 
 const el = (id) => document.getElementById(id);
@@ -446,6 +479,10 @@ function renderInterval(interval) {
       interval.standard,
     );
     if (rounded === 0) return '0';
+    const magnitude = Math.abs(rounded);
+    if (magnitude >= PLAIN_NOTATION_MIN && magnitude <= PLAIN_NOTATION_MAX) {
+      return atPlace(rounded, place);
+    }
     return primaryCount(rounded, Math.max(1, exponentOf(rounded) - place + 1));
   };
 
@@ -792,22 +829,41 @@ function copyResult() {
     });
 }
 
+/** Seed the worked example. Shared by startup and Reset. */
+function applyDefaults() {
+  el('mode-dimensions').checked = true;
+  el('concentration-type').value = DEFAULTS.concentrationType;
+  syncConcentrationUnits();
+  syncConcentrationType();
+  syncModePanels();
+
+  for (const [id, unit] of Object.entries(DEFAULTS.units)) el(id).value = unit;
+  for (const [field, value] of Object.entries(DEFAULTS.values)) {
+    el(field).value = value;
+  }
+
+  el('uncertainty-enabled').checked = true;
+  show(el('uncertainty-panel'), true);
+  for (const [id, value] of Object.entries(DEFAULTS.uncertainty)) {
+    el(id).value = value;
+  }
+
+  el('biomarker').value = DEFAULTS.biomarker;
+  syncVolumeEquivalence();
+  // Sets the molecular weight, its exact catalogue double, and the reason for
+  // the chosen form, then renders.
+  applyBiomarker();
+}
+
 function reset() {
   for (const field of MEASURE_FIELDS) el(field).value = '';
   delete el('molecular-weight').dataset.exactGramsPerMole;
   delete el('molecular-weight').dataset.exactUnit;
   for (const [id] of UNCERTAINTY_FIELDS) el(id).value = '';
-  el('mode-dimensions').checked = true;
-  el('concentration-type').value = 'molar';
-  el('uncertainty-enabled').checked = false;
-  el('biomarker').value = '';
   el('copy-status').textContent = '';
   touched.clear();
   populate();
-  syncModePanels();
-  syncConcentrationType();
-  show(el('uncertainty-panel'), false);
-  show(el('biomarker-why'), false);
+  applyDefaults();
   lastAnnounced = '';
   renderNow();
 }
@@ -887,7 +943,5 @@ function wire() {
 restoreLocale();
 populate();
 applyTranslations();
-syncModePanels();
-syncConcentrationType();
 wire();
-render();
+applyDefaults();
