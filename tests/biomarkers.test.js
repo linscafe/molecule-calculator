@@ -14,11 +14,21 @@ test('every entry is complete enough to be traced back to a source', () => {
     assert.ok(entry.id, 'needs an id');
     assert.ok(entry.analyte, `${entry.id} needs an analyte`);
     assert.ok(entry.form, `${entry.id} needs a molecular form`);
+    assert.ok(entry.short, `${entry.id} needs a short name to lead its option`);
     assert.ok(entry.why, `${entry.id} needs a stated reason`);
     assert.ok(
       Number.isFinite(entry.gramsPerMole) && entry.gramsPerMole > 0,
       `${entry.id} needs a positive molecular weight`,
     );
+  }
+});
+
+test('forms sharing an analyte share its short name', () => {
+  // The option text is `${short} ${form}`, so two CRP rows must both say CRP
+  // or the list stops grouping visually.
+  for (const analyte of analytes()) {
+    const names = new Set(formsFor(analyte).map((b) => b.short));
+    assert.equal(names.size, 1, `${analyte} has inconsistent short names`);
   }
 });
 

@@ -125,8 +125,13 @@ test('an unknown locale is rejected rather than silently falling back', () => {
   assert.throws(() => readableCount(1e9, 'fr'), RangeError);
 });
 
-// A chemical formula is not language. C₆H₁₂O₆ is written C₆H₁₂O₆ in Chinese,
+// A chemical formula is not language: C₆H₁₂O₆ is written C₆H₁₂O₆ in Chinese,
 // so requiring it to differ would force a wrong translation.
+//
+// Short names are exempt from the differ/Chinese checks entirely, because both
+// outcomes are correct depending on the analyte: CRP is written CRP in a
+// Taiwanese lab report, while cTn is 心肌旋轉蛋白. Asserting either way would
+// make one of those a failure. Presence is checked; wording is not.
 // Element symbols and subscripts only, and at least one subscript \u2014 otherwise
 // an ordinary English word like "Monomer" passes as a formula and escapes the
 // translation check entirely.
@@ -138,8 +143,9 @@ test('every biomarker is fully translated, form included', () => {
     const zh = localised(entry, 'zh-TW');
     const en = localised(entry, 'en');
     assert.equal(en.analyte, entry.analyte);
-    for (const field of ['analyte', 'form', 'why']) {
+    for (const field of ['analyte', 'short', 'form', 'why']) {
       assert.ok(zh[field], `${entry.id}.${field} missing in zh-TW`);
+      if (field === 'short') continue;
       if (isChemicalFormula(en[field])) {
         assert.equal(zh[field], en[field], `${entry.id}.${field} should not be translated`);
         continue;

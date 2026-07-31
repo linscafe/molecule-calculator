@@ -17,7 +17,9 @@
 export const BIOMARKERS = [
   {
     id: 'crp-pentamer',
+    short: 'CRP',
     zhTW: {
+      short: 'CRP',
       analyte: 'C反應蛋白（CRP）',
       form: '五聚體，循環型',
       why: '在血清中幾乎全以五聚體形式存在，單體實質上不存在於血清中。',
@@ -31,7 +33,9 @@ export const BIOMARKERS = [
   },
   {
     id: 'crp-monomer',
+    short: 'CRP',
     zhTW: {
+      short: 'CRP',
       analyte: 'C反應蛋白（CRP）',
       form: '單體',
       why: '解離後的單體形式，出現在發炎部位，而非血清整體中。',
@@ -45,7 +49,9 @@ export const BIOMARKERS = [
   },
   {
     id: 'troponin-tic',
+    short: 'cTn',
     zhTW: {
+      short: '心肌旋轉蛋白',
       analyte: '心肌旋轉蛋白',
       form: 'T–I–C 三元複合體',
       why: '心肌受損後以完整複合體的形式釋入血液。',
@@ -59,7 +65,9 @@ export const BIOMARKERS = [
   },
   {
     id: 'troponin-i',
+    short: 'cTn',
     zhTW: {
+      short: '心肌旋轉蛋白',
       analyte: '心肌旋轉蛋白',
       form: '游離 cTnI',
       why: '單一次單元，僅在檢驗專一針對游離 cTnI 時適用。',
@@ -73,7 +81,9 @@ export const BIOMARKERS = [
   },
   {
     id: 'psa-act',
+    short: 'PSA',
     zhTW: {
+      short: 'PSA',
       analyte: '攝護腺特異抗原（PSA）',
       form: 'PSA–ACT 複合體',
       why: '血清中大部分的 PSA 與 α1-抗胰凝乳蛋白酶結合。',
@@ -87,7 +97,9 @@ export const BIOMARKERS = [
   },
   {
     id: 'psa-free',
+    short: 'PSA',
     zhTW: {
+      short: 'PSA',
       analyte: '攝護腺特異抗原（PSA）',
       form: '游離 PSA',
       why: '未結合的部分，適用於專門量測游離 PSA 時。',
@@ -101,7 +113,9 @@ export const BIOMARKERS = [
   },
   {
     id: 'insulin-mature',
+    short: 'Insulin',
     zhTW: {
+      short: '胰島素',
       analyte: '胰島素',
       form: '成熟胰島素',
       why: '實際在血液中循環的荷爾蒙。',
@@ -115,7 +129,9 @@ export const BIOMARKERS = [
   },
   {
     id: 'proinsulin',
+    short: 'Insulin',
     zhTW: {
+      short: '胰島素',
       analyte: '胰島素',
       form: '胰島素原',
       why: '前驅胜肽，在循環中僅佔免疫反應性胰島素的一小部分。',
@@ -129,7 +145,9 @@ export const BIOMARKERS = [
   },
   {
     id: 'tnf-trimer',
+    short: 'TNF-α',
     zhTW: {
+      short: 'TNF-α',
       analyte: '腫瘤壞死因子-α（TNF-α）',
       form: '可溶性同源三聚體',
       why: '具生物活性的形式為三聚體。',
@@ -143,7 +161,9 @@ export const BIOMARKERS = [
   },
   {
     id: 'tnf-monomer',
+    short: 'TNF-α',
     zhTW: {
+      short: 'TNF-α',
       analyte: '腫瘤壞死因子-α（TNF-α）',
       form: '單體',
       why: '單一次單元，並非與受體結合的形式。',
@@ -157,7 +177,9 @@ export const BIOMARKERS = [
   },
   {
     id: 'haemoglobin-tetramer',
+    short: 'HbA',
     zhTW: {
+      short: '血紅素 A',
       analyte: '血紅素 A',
       form: 'α₂β₂ 四聚體',
       why: '紅血球中具功能的四聚體形式。',
@@ -171,7 +193,9 @@ export const BIOMARKERS = [
   },
   {
     id: 'haemoglobin-beta',
+    short: 'HbA',
     zhTW: {
+      short: '血紅素 A',
       analyte: '血紅素 A',
       form: 'β 次單元',
       why: '單一條血紅素鏈。',
@@ -185,7 +209,9 @@ export const BIOMARKERS = [
   },
   {
     id: 'igg',
+    short: 'IgG',
     zhTW: {
+      short: 'IgG',
       analyte: '免疫球蛋白 G（IgG）',
       form: '完整抗體',
       why: '完整的免疫球蛋白，即血清中所量測的形式。',
@@ -199,7 +225,9 @@ export const BIOMARKERS = [
   },
   {
     id: 'albumin-hsa',
+    short: 'HSA',
     zhTW: {
+      short: '人類血清白蛋白',
       analyte: '人類血清白蛋白',
       form: '成熟 HSA',
       why: '循環中僅有單一形式，不存在歧義。',
@@ -213,7 +241,9 @@ export const BIOMARKERS = [
   },
   {
     id: 'il6',
+    short: 'IL-6',
     zhTW: {
+      short: 'IL-6',
       analyte: '介白素-6（IL-6）',
       form: '成熟單體',
       why: '以單體形式作用，醣化會使表觀分子量略為提高。',
@@ -227,7 +257,9 @@ export const BIOMARKERS = [
   },
   {
     id: 'fibrinogen',
+    short: 'Fibrinogen',
     zhTW: {
+      short: '纖維蛋白原',
       analyte: '纖維蛋白原',
       form: '六聚體（Aα₂Bβ₂γ₂）',
       why: '在循環中僅以組裝完成的六聚體存在。',
@@ -241,7 +273,9 @@ export const BIOMARKERS = [
   },
   {
     id: 'thyroglobulin',
+    short: 'Tg',
     zhTW: {
+      short: '甲狀腺球蛋白',
       analyte: '甲狀腺球蛋白',
       form: '二聚體',
       why: '以二聚體的形式分泌並量測。',
@@ -255,7 +289,9 @@ export const BIOMARKERS = [
   },
   {
     id: 'bsa',
+    short: 'BSA',
     zhTW: {
+      short: 'BSA',
       analyte: '牛血清白蛋白（BSA）',
       form: '成熟 BSA',
       why: '常用的阻斷與校正蛋白，僅有單一形式。',
@@ -269,7 +305,9 @@ export const BIOMARKERS = [
   },
   {
     id: 'glucose',
+    short: 'Glucose',
     zhTW: {
+      short: '葡萄糖',
       analyte: '葡萄糖',
       form: 'C₆H₁₂O₆',
       why: '小分子，具確定的化學式質量，無寡聚體歧義。',
@@ -283,7 +321,9 @@ export const BIOMARKERS = [
   },
   {
     id: 'cortisol',
+    short: 'Cortisol',
     zhTW: {
+      short: '皮質醇',
       analyte: '皮質醇',
       form: 'C₂₁H₃₀O₅',
       why: '小分子，具確定的化學式質量，無寡聚體歧義。',
@@ -306,6 +346,10 @@ export function localised(entry, locale = 'en') {
   const translation = locale === 'en' ? null : entry[locale.replace('-', '')];
   return {
     analyte: translation?.analyte ?? entry.analyte,
+    // Short name so an option can lead with the molecule: "CRP Pentamer,
+    // circulating — 115 kDa". Latin abbreviations stay Latin in Chinese —
+    // CRP is written CRP in a Taiwanese lab report.
+    short: translation?.short ?? entry.short,
     form: translation?.form ?? entry.form,
     why: translation?.why ?? entry.why,
   };

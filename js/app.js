@@ -62,10 +62,11 @@ const DEFAULT_UNITS = {
  * The page opens on a worked example rather than an empty form, so the first
  * thing a visitor sees is a real result with its reasoning beside it.
  *
- * A 1 x 1 x 10 µm channel holding CRP at 100 pg/mL contains 0.005 molecules —
- * a 99.5% chance of being empty. That is not a contrived number: it is the
- * single-molecule regime microfluidics actually works in, and it puts the
- * occupancy breakdown on screen immediately.
+ * A 10 x 10 x 50 µm channel holding CRP at 100 pg/mL contains 2.62 molecules,
+ * which splits roughly 7% empty / 19% one / 74% two or more. That is not a
+ * contrived number: it is the counting regime microfluidics actually works in,
+ * and it puts a real occupancy distribution on screen immediately rather than
+ * a near-certain zero.
  *
  * Reset returns here rather than to a blank form, so "default" means one thing.
  */
@@ -77,7 +78,7 @@ const DEFAULTS = {
     'length-unit': 'um',
     'concentration-unit': 'pg/mL',
   },
-  values: { height: '1', width: '1', length: '10', concentration: '100' },
+  values: { height: '10', width: '10', length: '50', concentration: '100' },
   biomarker: 'crp-pentamer',
   uncertainty: {
     'u-height': '1',
@@ -169,10 +170,13 @@ function fillBiomarkers() {
         entry.gramsPerMole >= 1000
           ? `${entry.gramsPerMole / 1000} kDa`
           : `${entry.gramsPerMole} g/mol`;
-      const { form } = localised(entry, locale);
+      // Lead with the molecule, not the form: the optgroup label is easy to
+      // lose track of once the list is scrolling, and "Pentamer, circulating"
+      // on its own does not say what it is a pentamer of.
+      const { short, form } = localised(entry, locale);
       option.textContent = entry.recommended
-        ? `${form} — ${mass}（${t('mw.recommended')}）`
-        : `${form} — ${mass}`;
+        ? `${short} ${form} — ${mass}（${t('mw.recommended')}）`
+        : `${short} ${form} — ${mass}`;
       group.append(option);
     }
     select.append(group);
@@ -786,41 +790,71 @@ function copyResult() {
     return;
   }
   const { state, result } = lastResult;
-  const lines = [t('result.heading'), el('result-primary').textContent];
-  const readable = readableCount(result.moleculeCount, getLocale());
-  if (readable) lines.push(t('result.approximately', { value: readable }));
 
-  lines.push('', t('breakdown.calculation'));
-  for (const step of breakdownSteps(state, result)) {
-    lines.push(`${step.title}:`);
-    for (const line of step.lines) lines.push(`  ${line}`);
+  // Markdown, so the result pastes into a lab notebook, an issue, or a doc
+  // with its structure intact rather than as a wall of text.
+  const lines = [`# ${t('result.heading')}`, ''];
+  lines.push(`**${el('result-primary').textContent}**`, '');
+
+  const readable = readableCount(result.moleculeCount, getLocale());
+  if (readable) lines.push(t('result.approximately', { value: readable }), '');
+
+  const warnings = plausibilityWarnings({
+    dimensionsMetres: result.dimensionsMetres,
+    molPerLitre: result.molPerLitre,
+    moleculeCount: result.moleculeCount,
+  });
+  if (warnings.length > 0) {
+    lines.push(`## ${t('warnings.heading')}`, '');
+    for (const warning of warnings) lines.push(`- ${t(`warn.${warning.code}`)}`);
+    lines.push('');
   }
 
+  const occupancy = occupancyProbabilities(result.moleculeCount);
+  if (occupancy) {
+    lines.push(`## ${t('occupancy.title')}`, '', t('occupancy.heading'), '');
+    for (const [share, key] of [
+      [occupancy.zero, 'occupancy.zero'],
+      [occupancy.one, 'occupancy.one'],
+      [occupancy.twoOrMore, 'occupancy.twoOrMore'],
+    ]) {
+      lines.push(`- ${percent(share)} ${t(key)}`);
+    }
+    lines.push('', t('occupancy.note'), '');
+  }
+
+  lines.push(`## ${t('breakdown.calculation')}`, '');
+  breakdownSteps(state, result).forEach((step, index) => {
+    // Fenced so the aligned formulae survive the paste.
+    lines.push(`### ${index + 1}. ${step.title}`, '', '```text', ...step.lines, '```', '');
+  });
+
   if (result.interval) {
-    lines.push(
-      '',
-      t('interval.heading'),
-      `  ${el('interval').textContent}`,
-      `  ${el('interval-relative').textContent}`,
-    );
-    if (result.interval.clamped) lines.push(`  ${t('interval.clamped')}`);
+    lines.push(`## ${t('interval.heading')}`, '');
+    lines.push(el('interval').textContent, '');
+    lines.push(el('interval-relative').textContent, '');
+    if (result.interval.clamped) lines.push(t('interval.clamped'), '');
     if (result.interval.exceedsLinearity) {
       lines.push(
-        `  ${t('interval.linearity', { percent: percent(LINEARITY_WARNING_THRESHOLD) })}`,
+        t('interval.linearity', { percent: percent(result.interval.relative) }),
+        '',
       );
     }
-    lines.push(
-      '',
-      t('assumptions.heading'),
-      `  ${t('assumptions.uniform')}`,
-      `  ${t('assumptions.free')}`,
-      `  ${t('assumptions.independent')}`,
-      `  ${t('assumptions.interval')}`,
-    );
+    lines.push(t('interval.explanation'), '');
+    lines.push(`## ${t('assumptions.heading')}`, '');
+    for (const key of [
+      'assumptions.uniform',
+      'assumptions.free',
+      'assumptions.independent',
+      'assumptions.interval',
+    ]) {
+      lines.push(`- ${t(key)}`);
+    }
+    lines.push('');
   }
 
   navigator.clipboard
-    .writeText(lines.join('\n'))
+    .writeText(`${lines.join('\n').trimEnd()}\n`)
     .then(() => {
       status.textContent = t('copy.done');
     })

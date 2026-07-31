@@ -81,7 +81,9 @@ Use a clean, responsive two-column layout on desktop and a one-column layout on 
     - Assumptions and warnings
 6. **Footer**
     - Link to the GitHub repository
-    - Short scientific disclaimer: “This tool provides an estimate; it does not account for molecular aggregation, binding, losses, or concentration gradients unless modeled explicitly.”
+    - No scientific disclaimer. The uncertainty card already states the
+      assumptions it relies on, and the calculation panel shows every step, so a
+      blanket footer caveat added nothing the page was not already saying.
 
 ## Inputs
 
@@ -165,6 +167,11 @@ Offer a curated list of roughly 12–15 common biomarkers. Every entry names its
 **molecular form** and cites a UniProt accession. Where more than one form is
 in common use, mark the physiologically representative one **Recommended** and
 give the reason in a “Why this form” column.
+
+Option text leads with the molecule, not the form: `CRP Pentamer, circulating —
+115 kDa (recommended)`. The optgroup label is easy to lose track of once the
+list is scrolling, and “Pentamer, circulating” alone does not say what it is a
+pentamer of.
 
 Selecting an entry **prefills** the molecular-weight field. It never locks it.
 The chosen entry and accession appear in the calculation details.
@@ -460,7 +467,10 @@ Require:
 - Unit selectors adjacent to their numeric input.
 - Mobile-friendly numeric keyboard using `inputmode="decimal"`.
 - A “Reset” button that restores sensible empty defaults.
-- A “Copy result” button that copies the result, calculation summary, assumptions, and uncertainty interval.
+- A “Copy result” button that copies **Markdown** — `#` for the result, `##`
+  for warnings, occupancy, calculation, interval and assumptions, `###` for each
+  numbered step, with the formulae in fenced `text` blocks so the alignment
+  survives the paste.
 
 ### Recalculation timing
 
@@ -508,21 +518,20 @@ thing a visitor sees is a real result with its reasoning beside it. **Reset
 returns here** rather than blanking the form, so "default" means one thing.
 
 ```text
-Height 1 µm   Width 1 µm   Length 10 µm
+Height 10 µm   Width 10 µm   Length 50 µm
 Mass concentration 100 pg/mL
 Biomarker: CRP — pentamer, circulating (115 kDa)
 Uncertainty enabled, 1% on each of the five inputs
 
-→ 0.00524 ± 0.00012 molecules
-→ 99.5% of equivalent volumes contain none
+→ 2.618 ± 0.059 molecules
+→ 7.3% empty · 19.1% one · 73.6% two or more
 ```
 
-This is deliberately the single-molecule regime. A 1 × 1 × 10 µm channel at
-trace immunoassay concentrations really does hold a fraction of a molecule, so
-the occupancy breakdown is on screen from the first paint rather than hidden
-behind an input the visitor has to guess at. The consequence to accept is that
-the below-one-molecule warning is visible on load; it is the correct reading of
-the scenario, not an error state.
+This is deliberately the counting regime. A 10 × 10 × 50 µm channel at trace
+immunoassay concentrations really does hold a couple of molecules, so the
+occupancy breakdown is on screen from the first paint rather than hidden behind
+an input the visitor has to guess at — and unlike a near-certain zero, it shows
+a distribution with all three outcomes in play.
 
 `pg/mL` was added to the mass-concentration units for this — the original list
 stopped at ng/mL, three orders of magnitude above where clinical immunoassays

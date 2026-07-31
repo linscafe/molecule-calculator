@@ -49,10 +49,10 @@ h1 {
   font-size: clamp(1.6rem, 3.4vw, 2rem);
   margin: 0 0 0.3rem;
   letter-spacing: -0.015em;
-  background: linear-gradient(100deg, var(--accent-deep), var(--accent-bright));
-  -webkit-background-clip: text;
-  background-clip: text;
-  color: transparent;
+  /* One flat colour. A gradient renders unevenly across Han characters, whose
+     strokes are distributed differently from Latin ones, so 「分子數量計算機」
+     would not read as the same colour as the English title. */
+  color: var(--accent-deep);
 }
 
 h2 {
@@ -563,6 +563,3 @@ summary {
   font-size: 0.88rem;
 }
 
-.disclaimer {
-  margin: 0.25rem 0 0;
-}

@@ -140,8 +140,8 @@ const STRINGS = {
     'volume.equivalence': '1 {unit} is exactly 1 {others}.',
 
     'footer.source': 'Source on GitHub',
-    'footer.disclaimer':
-      'This tool provides an estimate; it does not account for molecular aggregation, binding, losses, or concentration gradients unless modeled explicitly.',
+    'warnings.heading': 'Warnings',
+    'occupancy.title': 'Occupancy',
   },
 
   'zh-TW': {
@@ -269,8 +269,8 @@ const STRINGS = {
     'volume.equivalence': '1 {unit} 恰等於 1 {others}。',
 
     'footer.source': 'GitHub 原始碼',
-    'footer.disclaimer':
-      '本工具提供的是估計值，除非另行明確建模，否則不考慮分子聚集、結合、損耗或濃度梯度。',
+    'warnings.heading': '警告',
+    'occupancy.title': '佔據機率',
   },
 };
 
