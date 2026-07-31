@@ -1,0 +1,301 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Number of Molecules Calculator</title>
+    <meta
+      name="description"
+      content="Estimate how many molecules are present in a given volume, from dimensions or a directly entered volume."
+    />
+    <link rel="icon" href="assets/favicon.svg" type="image/svg+xml" />
+    <link rel="stylesheet" href="css/styles.css" />
+  </head>
+  <body>
+    <header class="page-header">
+      <div class="page-header__text">
+        <h1>Number of Molecules Calculator</h1>
+        <p class="subtitle">
+          Estimate how many molecules are present in a given volume.
+        </p>
+      </div>
+      <svg
+        class="channel-illustration"
+        viewBox="0 0 240 64"
+        aria-hidden="true"
+        focusable="false"
+      >
+        <rect x="2" y="14" width="236" height="36" rx="6" class="channel-wall" />
+        <rect x="8" y="20" width="224" height="24" rx="3" class="channel-bore" />
+        <g class="channel-molecules">
+          <circle cx="34" cy="27" r="3.2" />
+          <circle cx="62" cy="37" r="3.2" />
+          <circle cx="88" cy="24" r="3.2" />
+          <circle cx="115" cy="34" r="3.2" />
+          <circle cx="141" cy="28" r="3.2" />
+          <circle cx="168" cy="38" r="3.2" />
+          <circle cx="196" cy="26" r="3.2" />
+          <circle cx="216" cy="35" r="3.2" />
+        </g>
+      </svg>
+    </header>
+
+    <main class="layout">
+      <!-- No <form>: without a submit button, Enter inside a form behaves
+           inconsistently across browsers. app.js binds Enter explicitly. -->
+      <section class="card" aria-labelledby="inputs-heading">
+        <h2 id="inputs-heading">Inputs</h2>
+
+        <fieldset class="field-group">
+          <legend>
+            <svg class="icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+              <path d="M4 8l8-4 8 4v8l-8 4-8-4z" />
+              <path d="M4 8l8 4 8-4M12 12v8" />
+            </svg>
+            Sample volume
+          </legend>
+
+          <div class="segmented" role="radiogroup" aria-label="How to specify the volume">
+            <input type="radio" id="mode-dimensions" name="volume-mode" value="dimensions" checked />
+            <label for="mode-dimensions">Calculate from dimensions</label>
+            <input type="radio" id="mode-volume" name="volume-mode" value="volume" />
+            <label for="mode-volume">Enter volume directly</label>
+          </div>
+
+          <div id="dimensions-panel" class="mode-panel">
+            <div class="measure">
+              <label for="height">Height</label>
+              <div class="measure__controls">
+                <input id="height" type="text" inputmode="decimal" autocomplete="off" />
+                <select id="height-unit" aria-label="Height unit"></select>
+              </div>
+              <p class="field-error" id="height-error" hidden></p>
+            </div>
+
+            <div class="measure">
+              <label for="width">Width</label>
+              <div class="measure__controls">
+                <input id="width" type="text" inputmode="decimal" autocomplete="off" />
+                <select id="width-unit" aria-label="Width unit"></select>
+              </div>
+              <p class="field-error" id="width-error" hidden></p>
+            </div>
+
+            <div class="measure">
+              <label for="length">Length</label>
+              <div class="measure__controls">
+                <input id="length" type="text" inputmode="decimal" autocomplete="off" />
+                <select id="length-unit" aria-label="Length unit"></select>
+              </div>
+              <p class="field-error" id="length-error" hidden></p>
+            </div>
+          </div>
+
+          <div id="volume-panel" class="mode-panel" hidden>
+            <div class="measure">
+              <label for="volume">Volume</label>
+              <div class="measure__controls">
+                <input id="volume" type="text" inputmode="decimal" autocomplete="off" />
+                <select id="volume-unit" aria-label="Volume unit"></select>
+              </div>
+              <p class="field-error" id="volume-error" hidden></p>
+              <p class="field-note" id="volume-equivalence" hidden></p>
+            </div>
+          </div>
+        </fieldset>
+
+        <fieldset class="field-group">
+          <legend>
+            <svg class="icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+              <path d="M9 3h6v5l4 10a2 2 0 01-1.9 3H6.9A2 2 0 015 18L9 8z" />
+              <path d="M6.6 14h10.8" />
+            </svg>
+            Concentration
+          </legend>
+
+          <div class="measure">
+            <label for="concentration-type">Concentration type</label>
+            <select id="concentration-type">
+              <option value="molar">Molar concentration</option>
+              <option value="mass">Mass concentration</option>
+            </select>
+          </div>
+
+          <div class="measure">
+            <label for="concentration">Concentration</label>
+            <div class="measure__controls">
+              <input id="concentration" type="text" inputmode="decimal" autocomplete="off" />
+              <select id="concentration-unit" aria-label="Concentration unit"></select>
+            </div>
+            <p class="field-error" id="concentration-error" hidden></p>
+          </div>
+        </fieldset>
+
+        <fieldset class="field-group" id="molecular-weight-group" hidden>
+          <legend>Molecular weight</legend>
+          <p class="field-note">
+            Molecular weight is needed only when concentration is expressed as
+            mass per volume, such as ng/mL.
+          </p>
+
+          <div class="measure">
+            <label for="biomarker">Common biomarker</label>
+            <select id="biomarker"></select>
+            <p class="field-note" id="biomarker-why" hidden></p>
+          </div>
+
+          <div class="measure">
+            <label for="molecular-weight">Molecular weight</label>
+            <div class="measure__controls">
+              <input
+                id="molecular-weight"
+                type="text"
+                inputmode="decimal"
+                autocomplete="off"
+                placeholder="150,000"
+              />
+              <select id="molecular-weight-unit" aria-label="Molecular weight unit"></select>
+            </div>
+            <p class="field-error" id="molecular-weight-error" hidden></p>
+          </div>
+        </fieldset>
+
+        <fieldset class="field-group">
+          <legend>
+            <svg class="icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+              <path d="M12 5v14M8 5h8M8 19h8M12 9l4 3-4 3" />
+            </svg>
+            Uncertainty
+          </legend>
+
+          <div class="switch">
+            <input type="checkbox" id="uncertainty-enabled" />
+            <label for="uncertainty-enabled">Include input uncertainty</label>
+          </div>
+
+          <div id="uncertainty-panel" hidden>
+            <p class="field-note">
+              Leave any field blank to treat that input as exact.
+            </p>
+            <button type="button" id="uncertainty-preset" class="link-button">
+              Fill a typical laboratory estimate (an assumption, not a measurement)
+            </button>
+
+            <div class="measure" data-uncertainty-for="dimensions">
+              <label for="u-height">Height uncertainty</label>
+              <div class="measure__controls">
+                <input id="u-height" type="text" inputmode="decimal" autocomplete="off" />
+                <select id="u-height-kind" aria-label="Height uncertainty kind"></select>
+              </div>
+            </div>
+            <div class="measure" data-uncertainty-for="dimensions">
+              <label for="u-width">Width uncertainty</label>
+              <div class="measure__controls">
+                <input id="u-width" type="text" inputmode="decimal" autocomplete="off" />
+                <select id="u-width-kind" aria-label="Width uncertainty kind"></select>
+              </div>
+            </div>
+            <div class="measure" data-uncertainty-for="dimensions">
+              <label for="u-length">Length uncertainty</label>
+              <div class="measure__controls">
+                <input id="u-length" type="text" inputmode="decimal" autocomplete="off" />
+                <select id="u-length-kind" aria-label="Length uncertainty kind"></select>
+              </div>
+            </div>
+            <div class="measure" data-uncertainty-for="volume" hidden>
+              <label for="u-volume">Volume uncertainty</label>
+              <div class="measure__controls">
+                <input id="u-volume" type="text" inputmode="decimal" autocomplete="off" />
+                <select id="u-volume-kind" aria-label="Volume uncertainty kind"></select>
+              </div>
+            </div>
+            <div class="measure">
+              <label for="u-concentration">Concentration uncertainty</label>
+              <div class="measure__controls">
+                <input id="u-concentration" type="text" inputmode="decimal" autocomplete="off" />
+                <select id="u-concentration-kind" aria-label="Concentration uncertainty kind"></select>
+              </div>
+            </div>
+            <div class="measure" data-uncertainty-for="mass" hidden>
+              <label for="u-molecular-weight">Molecular-weight uncertainty</label>
+              <div class="measure__controls">
+                <input id="u-molecular-weight" type="text" inputmode="decimal" autocomplete="off" />
+                <select id="u-molecular-weight-kind" aria-label="Molecular weight uncertainty kind"></select>
+              </div>
+            </div>
+          </div>
+        </fieldset>
+
+        <div class="actions">
+          <button type="button" id="reset">Reset</button>
+          <button type="button" id="copy">Copy result</button>
+          <span class="copy-status" id="copy-status" role="status" aria-live="polite"></span>
+        </div>
+      </section>
+
+      <div class="results-column">
+        <section class="card result-card" aria-labelledby="result-heading">
+          <h2 id="result-heading">
+            <svg class="icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+              <circle cx="7" cy="8" r="2.6" />
+              <circle cx="17" cy="7" r="2.6" />
+              <circle cx="12" cy="17" r="2.6" />
+              <path d="M8.9 9.4l2.4 5.4M15.6 9.2l-2.6 5.6M9.5 7.6h5" />
+            </svg>
+            Number of molecules
+          </h2>
+
+          <!-- The only channel by which a screen-reader user learns a result
+               exists, since there is no submit button. Announcements are
+               debounced in app.js so this fires once per settled edit. -->
+          <div id="result-live" aria-live="polite">
+            <p class="result-primary" id="result-primary">—</p>
+            <p class="result-readable" id="result-readable" hidden></p>
+          </div>
+
+          <div class="status-region" id="validation-status" role="status" aria-live="polite"></div>
+          <div id="warnings"></div>
+          <div id="occupancy" hidden></div>
+        </section>
+
+        <section class="card" id="uncertainty-card" aria-labelledby="uncertainty-heading" hidden>
+          <h2 id="uncertainty-heading">Estimated uncertainty interval</h2>
+          <p class="interval" id="interval"></p>
+          <p class="interval-relative" id="interval-relative"></p>
+          <div id="interval-warning"></div>
+          <p class="explanation">
+            This interval describes how much the estimated molecule count could
+            vary because the inputs are uncertain. It is not a guarantee that
+            the true value falls inside the range. The estimate assumes the
+            input errors are independent and approximately normally distributed.
+          </p>
+          <h3>Assumptions</h3>
+          <ul class="assumptions">
+            <li>Molecules are uniformly distributed in the volume</li>
+            <li>Concentration represents freely available molecules</li>
+            <li>Input uncertainties are independent</li>
+            <li>The reported interval is an approximate 95% uncertainty interval</li>
+          </ul>
+        </section>
+
+        <details class="card" id="breakdown-card">
+          <summary>Calculation details</summary>
+          <ol class="breakdown" id="breakdown"></ol>
+        </details>
+      </div>
+    </main>
+
+    <footer class="page-footer">
+      <p>
+        <a href="https://github.com/linscafe/molecule-calculator">Source on GitHub</a>
+      </p>
+      <p class="disclaimer">
+        This tool provides an estimate; it does not account for molecular
+        aggregation, binding, losses, or concentration gradients unless modeled
+        explicitly.
+      </p>
+    </footer>
+
+    <script type="module" src="js/app.js"></script>
+  </body>
+</html>

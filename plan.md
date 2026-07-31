@@ -532,7 +532,11 @@ molecule-calculator/
     └── formatters.test.js
 ```
 
-Tests run with `node --test tests/`.
+Tests run with `node --test` from the repository root.
+
+> Not `node --test tests/`. On Node 24 a bare directory argument is resolved as
+> a module path and fails with `MODULE_NOT_FOUND`. Bare `node --test`
+> auto-discovers `tests/`; `node --test tests/*.test.js` also works.
 
 ## Acceptance criteria
 
