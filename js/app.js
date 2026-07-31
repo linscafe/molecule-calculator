@@ -179,6 +179,16 @@ function readState() {
     molecularWeight: el('molecular-weight-unit').value,
   };
 
+  // A prefilled molecular weight is carried as the exact catalogue double, not
+  // re-parsed from the string rendered into the field. Only valid while the
+  // field still shows that prefill in that unit.
+  const mwInput = el('molecular-weight');
+  const exactMolecularWeight =
+    mwInput.dataset.exactGramsPerMole !== undefined &&
+    mwInput.dataset.exactUnit === units.molecularWeight
+      ? Number(mwInput.dataset.exactGramsPerMole)
+      : null;
+
   const uncertaintyEnabled = el('uncertainty-enabled').checked;
   const entry = (id) => {
     const raw = el(id).value.trim();
@@ -191,6 +201,7 @@ function readState() {
     concentrationType,
     values,
     units,
+    exactMolecularWeight,
     uncertaintyEnabled,
     uncertainty: uncertaintyEnabled
       ? {
@@ -231,10 +242,9 @@ function compute(state) {
             units.concentration,
           ),
           volumeLitres,
-          gramsPerMole: toGramsPerMole(
-            num(values.molecularWeight),
-            units.molecularWeight,
-          ),
+          gramsPerMole:
+            state.exactMolecularWeight ??
+            toGramsPerMole(num(values.molecularWeight), units.molecularWeight),
         })
       : calculateFromMolar({
           molPerLitre: toMolPerLitre(
@@ -619,11 +629,20 @@ function applyBiomarker() {
   }
   // Prefill, never lock — a researcher measuring free PSA specifically must
   // not be argued with (ADR-0003).
+  const input = el('molecular-weight');
   const useKilodaltons = entry.gramsPerMole >= 1000;
-  el('molecular-weight-unit').value = useKilodaltons ? 'kDa' : 'g/mol';
-  el('molecular-weight').value = String(
+  const unit = useKilodaltons ? 'kDa' : 'g/mol';
+  el('molecular-weight-unit').value = unit;
+  input.value = String(
     useKilodaltons ? entry.gramsPerMole / 1000 : entry.gramsPerMole,
   );
+  // The field above is a display of the catalogue value, so the catalogue
+  // value stays the source of truth rather than being re-derived from the
+  // string it was rendered into. Cleared the moment the user edits the field
+  // (see wire()) or picks a different unit, at which point what is displayed
+  // *is* what was meant.
+  input.dataset.exactGramsPerMole = String(entry.gramsPerMole);
+  input.dataset.exactUnit = unit;
   touched.add('molecular-weight');
   why.textContent = `${entry.form}: ${entry.why}`;
   show(why, true);
@@ -687,6 +706,8 @@ function copyResult() {
 
 function reset() {
   for (const field of MEASURE_FIELDS) el(field).value = '';
+  delete el('molecular-weight').dataset.exactGramsPerMole;
+  delete el('molecular-weight').dataset.exactUnit;
   for (const id of [
     'u-height',
     'u-width',
@@ -715,7 +736,12 @@ function reset() {
 function wire() {
   for (const field of MEASURE_FIELDS) {
     const input = el(field);
-    input.addEventListener('input', scheduleRender);
+    input.addEventListener('input', () => {
+      // Once the user types, the field is the source of truth again.
+      delete input.dataset.exactGramsPerMole;
+      delete input.dataset.exactUnit;
+      scheduleRender();
+    });
     input.addEventListener('blur', () => {
       touched.add(field);
       renderNow();
