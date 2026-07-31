@@ -32,6 +32,14 @@ the browser loads are the ones Node imports.
 > Use bare `node --test`, not `node --test tests/` — on Node 24 a directory
 > argument is resolved as a module path and fails.
 
+## Languages
+
+English and Traditional Chinese (Taiwan), switchable from the header tab.
+
+Note that the Chinese readable line uses myriad grouping — 3.01e8 is
+「3.01億」, not 「301 百萬」. The scale tables in `formatters.js` are two
+different systems, not translations of one another.
+
 ## How it works
 
 | Concentration | Formula |

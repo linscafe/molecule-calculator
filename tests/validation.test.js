@@ -2,6 +2,7 @@ import { test } from 'node:test';
 import assert from 'node:assert/strict';
 
 import {
+  ERRORS,
   MAX_PLAUSIBLE_MOLARITY,
   MIN_PLAUSIBLE_METRES,
   parseDecimal,
@@ -27,8 +28,8 @@ test('a complete dimensions form is valid', () => {
 test('all three dimensions are required', () => {
   const result = dimensions({ height: '100', width: '', concentration: '10' });
   assert.ok(!result.valid);
-  assert.match(result.errors.width, /required/);
-  assert.match(result.errors.length, /required/);
+  assert.equal(result.errors.width, 'required');
+  assert.equal(result.errors.length, 'required');
 });
 
 test('negatives and zeroes are rejected with different messages', () => {
@@ -38,7 +39,7 @@ test('negatives and zeroes are rejected with different messages', () => {
     length: '10',
     concentration: '10',
   });
-  assert.match(negative.errors.height, /cannot be negative/);
+  assert.equal(negative.errors.height, 'negative');
 
   const zero = dimensions({
     height: '0',
@@ -46,7 +47,7 @@ test('negatives and zeroes are rejected with different messages', () => {
     length: '10',
     concentration: '10',
   });
-  assert.match(zero.errors.height, /greater than zero/);
+  assert.equal(zero.errors.height, 'zero');
 });
 
 test('grouped input is accepted — the placeholder itself is "150,000"', () => {
@@ -75,7 +76,7 @@ test('non-numeric input is rejected', () => {
     length: '10',
     concentration: '10',
   });
-  assert.match(result.errors.height, /must be a number/);
+  assert.equal(result.errors.height, 'notNumber');
 });
 
 test('volume mode requires a volume and ignores the dimension fields', () => {
@@ -97,7 +98,7 @@ test('mass concentration requires a molecular weight; molar does not', () => {
     values,
   });
   assert.ok(!mass.valid);
-  assert.match(mass.errors.molecularWeight, /required/);
+  assert.equal(mass.errors.molecularWeight, 'required');
 
   const molar = validate({
     volumeMode: 'volume',
@@ -107,10 +108,18 @@ test('mass concentration requires a molecular weight; molar does not', () => {
   assert.ok(molar.valid);
 });
 
-test('one blocking message is surfaced, not a list to hold in your head', () => {
+test('one blocking problem is surfaced, not a list to hold in your head', () => {
   const result = dimensions({ height: '', width: '', length: '', concentration: '' });
-  assert.equal(result.blocking, result.errors.height);
-  assert.match(result.blocking, /^Height/);
+  assert.deepEqual(result.blocking, { field: 'height', code: 'required' });
+});
+
+test('validation returns codes, never sentences', () => {
+  // A module that hands back English cannot be localised without a rewrite.
+  const result = dimensions({ height: '-1', width: '', length: 'x', concentration: '0' });
+  for (const code of Object.values(result.errors)) {
+    assert.ok(Object.values(ERRORS).includes(code), `${code} is not a known code`);
+    assert.ok(!/ /.test(code), `${code} looks like a sentence`);
+  }
 });
 
 test('a sub-atomic dimension is flagged as a probable unit slip', () => {
@@ -119,7 +128,6 @@ test('a sub-atomic dimension is flagged as a probable unit slip', () => {
   });
   assert.equal(warnings.length, 1);
   assert.equal(warnings[0].code, 'sub-atomic-dimension');
-  assert.match(warnings[0].message, /unit selector/);
 });
 
 test('a plausible nanochannel is not flagged', () => {
@@ -132,7 +140,6 @@ test('a plausible nanochannel is not flagged', () => {
 test('a concentration denser than any real solution is flagged', () => {
   const warnings = plausibilityWarnings({ molPerLitre: 30 });
   assert.equal(warnings[0].code, 'implausible-concentration');
-  assert.match(warnings[0].message, /55\.5 M/);
 
   assert.deepEqual(plausibilityWarnings({ molPerLitre: MAX_PLAUSIBLE_MOLARITY }), []);
 });

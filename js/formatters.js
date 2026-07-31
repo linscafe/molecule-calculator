@@ -18,15 +18,37 @@ export const PLAIN_NOTATION_MAX = 1e6;
  */
 export const READABLE_MAX = 1e18;
 
-// Short scale only. "billion" and "trillion" denote different magnitudes on
-// the long scale still used across much of Europe, so every readable line is
-// marked accordingly — see readableCount().
-const SHORT_SCALE = [
-  [1e15, 'quadrillion'],
-  [1e12, 'trillion'],
-  [1e9, 'billion'],
-  [1e6, 'million'],
-];
+// English groups large numbers in thousands; Chinese groups them in myriads.
+// These are different systems, not different words for the same one, so the
+// zh-TW row is not a translation of the en row — 3.01e8 reads "301 million"
+// but 「3.01億」, and the two tables share no boundaries above 10^4.
+//
+// The "(short scale)" qualifier exists only in English, where "billion" is
+// 10^9 on the short scale and 10^12 on the long scale still used across much
+// of Europe. The Chinese myriad system carries no such ambiguity, so adding a
+// qualifier there would be noise.
+const SCALES = {
+  en: {
+    separator: ' ',
+    qualifier: ' (short scale)',
+    steps: [
+      [1e15, 'quadrillion'],
+      [1e12, 'trillion'],
+      [1e9, 'billion'],
+      [1e6, 'million'],
+    ],
+  },
+  'zh-TW': {
+    separator: '',
+    qualifier: '',
+    steps: [
+      [1e16, '京'],
+      [1e12, '兆'],
+      [1e8, '億'],
+      [1e4, '萬'],
+    ],
+  },
+};
 
 const SUPERSCRIPTS = { '-': '⁻', 0: '⁰', 1: '¹', 2: '²', 3: '³', 4: '⁴', 5: '⁵', 6: '⁶', 7: '⁷', 8: '⁸', 9: '⁹' };
 
@@ -86,13 +108,16 @@ export function primaryCount(value, digits = DEFAULT_SIGNIFICANT_FIGURES) {
  * readable line would only repeat it, and at or above 10¹⁸, where the words
  * stop informing anyone.
  */
-export function readableCount(value) {
+export function readableCount(value, locale = 'en') {
   if (!Number.isFinite(value) || value < PLAIN_NOTATION_MAX || value >= READABLE_MAX) {
     return null;
   }
-  const [factor, name] = SHORT_SCALE.find(([f]) => value >= f);
+  const scale = SCALES[locale];
+  if (scale === undefined) throw new RangeError(`Unknown locale "${locale}"`);
+
+  const [factor, name] = scale.steps.find(([f]) => value >= f);
   const mantissa = toSignificantFigures(value / factor, DEFAULT_SIGNIFICANT_FIGURES);
-  return `${groups.format(mantissa)} ${name} (short scale)`;
+  return `${groups.format(mantissa)}${scale.separator}${name}${scale.qualifier}`;
 }
 
 /**

@@ -8,13 +8,14 @@ export const MIN_PLAUSIBLE_METRES = 1e-10;
 /** Pure water is 55.5 M; saturated NaCl is ~6.1 M. */
 export const MAX_PLAUSIBLE_MOLARITY = 25;
 
-const LABELS = {
-  height: 'Height',
-  width: 'Width',
-  length: 'Length',
-  volume: 'Volume',
-  concentration: 'Concentration',
-  molecularWeight: 'Molecular weight',
+// Error *codes*, never sentences. The interface layer turns these into text in
+// whichever locale is active — see i18n.js. A module that returns English
+// cannot be localised without being rewritten.
+export const ERRORS = {
+  REQUIRED: 'required',
+  NOT_A_NUMBER: 'notNumber',
+  NEGATIVE: 'negative',
+  ZERO: 'zero',
 };
 
 /**
@@ -28,15 +29,12 @@ export function parseDecimal(raw) {
   return raw.replace(/[\s,]/g, '');
 }
 
-function positiveNumberError(field, raw) {
-  const label = LABELS[field];
-  if (raw === '' || raw === null || raw === undefined) {
-    return `${label} is required.`;
-  }
+function positiveNumberError(raw) {
+  if (raw === '' || raw === null || raw === undefined) return ERRORS.REQUIRED;
   const value = Number(parseDecimal(raw));
-  if (!Number.isFinite(value)) return `${label} must be a number.`;
-  if (value < 0) return `${label} cannot be negative.`;
-  if (value === 0) return `${label} must be greater than zero.`;
+  if (!Number.isFinite(value)) return ERRORS.NOT_A_NUMBER;
+  if (value < 0) return ERRORS.NEGATIVE;
+  if (value === 0) return ERRORS.ZERO;
   return null;
 }
 
@@ -55,7 +53,7 @@ export function validate({ volumeMode, concentrationType, values }) {
 
   const errors = {};
   for (const field of required) {
-    const error = positiveNumberError(field, values[field]);
+    const error = positiveNumberError(values[field]);
     if (error) errors[field] = error;
   }
 
@@ -63,9 +61,9 @@ export function validate({ volumeMode, concentrationType, values }) {
   return {
     errors,
     valid: first === undefined,
-    // The single message the live region announces. Naming one field beats
+    // The single problem the live region announces. Naming one field beats
     // announcing a list nobody can hold in their head.
-    blocking: first ? errors[first] : null,
+    blocking: first ? { field: first, code: errors[first] } : null,
   };
 }
 
@@ -87,27 +85,15 @@ export function plausibilityWarnings({
   const warnings = [];
 
   if (dimensionsMetres.some((m) => m > 0 && m < MIN_PLAUSIBLE_METRES)) {
-    warnings.push({
-      code: 'sub-atomic-dimension',
-      message:
-        'One or more dimensions are smaller than a single atom — check the unit selector.',
-    });
+    warnings.push({ code: 'sub-atomic-dimension' });
   }
 
   if (Number.isFinite(molPerLitre) && molPerLitre > MAX_PLAUSIBLE_MOLARITY) {
-    warnings.push({
-      code: 'implausible-concentration',
-      message:
-        'This concentration exceeds any realistic solution. For reference, pure water is 55.5 M and saturated NaCl is about 6.1 M.',
-    });
+    warnings.push({ code: 'implausible-concentration' });
   }
 
   if (Number.isFinite(moleculeCount) && moleculeCount < 1) {
-    warnings.push({
-      code: 'below-one-molecule',
-      message:
-        'The expected count is below one. In a real sample, some equivalent volumes may contain zero molecules and others may contain one or more.',
-    });
+    warnings.push({ code: 'below-one-molecule' });
   }
 
   return warnings;

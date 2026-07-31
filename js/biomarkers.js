@@ -17,6 +17,11 @@
 export const BIOMARKERS = [
   {
     id: 'crp-pentamer',
+    zhTW: {
+      analyte: 'C反應蛋白（CRP）',
+      form: '五聚體，循環型',
+      why: '在血清中幾乎全以五聚體形式存在，單體實質上不存在於血清中。',
+    },
     analyte: 'C-reactive protein (CRP)',
     form: 'Pentamer, circulating',
     gramsPerMole: 115000,
@@ -26,6 +31,11 @@ export const BIOMARKERS = [
   },
   {
     id: 'crp-monomer',
+    zhTW: {
+      analyte: 'C反應蛋白（CRP）',
+      form: '單體',
+      why: '解離後的單體形式，出現在發炎部位，而非血清整體中。',
+    },
     analyte: 'C-reactive protein (CRP)',
     form: 'Monomer',
     gramsPerMole: 23000,
@@ -35,6 +45,11 @@ export const BIOMARKERS = [
   },
   {
     id: 'troponin-tic',
+    zhTW: {
+      analyte: '心肌旋轉蛋白',
+      form: 'T–I–C 三元複合體',
+      why: '心肌受損後以完整複合體的形式釋入血液。',
+    },
     analyte: 'Cardiac troponin',
     form: 'T–I–C ternary complex',
     gramsPerMole: 77000,
@@ -44,6 +59,11 @@ export const BIOMARKERS = [
   },
   {
     id: 'troponin-i',
+    zhTW: {
+      analyte: '心肌旋轉蛋白',
+      form: '游離 cTnI',
+      why: '單一次單元，僅在檢驗專一針對游離 cTnI 時適用。',
+    },
     analyte: 'Cardiac troponin',
     form: 'Free cTnI',
     gramsPerMole: 24000,
@@ -53,6 +73,11 @@ export const BIOMARKERS = [
   },
   {
     id: 'psa-act',
+    zhTW: {
+      analyte: '攝護腺特異抗原（PSA）',
+      form: 'PSA–ACT 複合體',
+      why: '血清中大部分的 PSA 與 α1-抗胰凝乳蛋白酶結合。',
+    },
     analyte: 'Prostate-specific antigen (PSA)',
     form: 'PSA–ACT complex',
     gramsPerMole: 90000,
@@ -62,6 +87,11 @@ export const BIOMARKERS = [
   },
   {
     id: 'psa-free',
+    zhTW: {
+      analyte: '攝護腺特異抗原（PSA）',
+      form: '游離 PSA',
+      why: '未結合的部分，適用於專門量測游離 PSA 時。',
+    },
     analyte: 'Prostate-specific antigen (PSA)',
     form: 'Free PSA',
     gramsPerMole: 28400,
@@ -71,6 +101,11 @@ export const BIOMARKERS = [
   },
   {
     id: 'insulin-mature',
+    zhTW: {
+      analyte: '胰島素',
+      form: '成熟胰島素',
+      why: '實際在血液中循環的荷爾蒙。',
+    },
     analyte: 'Insulin',
     form: 'Mature insulin',
     gramsPerMole: 5808,
@@ -80,6 +115,11 @@ export const BIOMARKERS = [
   },
   {
     id: 'proinsulin',
+    zhTW: {
+      analyte: '胰島素',
+      form: '胰島素原',
+      why: '前驅胜肽，在循環中僅佔免疫反應性胰島素的一小部分。',
+    },
     analyte: 'Insulin',
     form: 'Proinsulin',
     gramsPerMole: 9390,
@@ -89,6 +129,11 @@ export const BIOMARKERS = [
   },
   {
     id: 'tnf-trimer',
+    zhTW: {
+      analyte: '腫瘤壞死因子-α（TNF-α）',
+      form: '可溶性同源三聚體',
+      why: '具生物活性的形式為三聚體。',
+    },
     analyte: 'TNF-α',
     form: 'Soluble homotrimer',
     gramsPerMole: 52000,
@@ -98,6 +143,11 @@ export const BIOMARKERS = [
   },
   {
     id: 'tnf-monomer',
+    zhTW: {
+      analyte: '腫瘤壞死因子-α（TNF-α）',
+      form: '單體',
+      why: '單一次單元，並非與受體結合的形式。',
+    },
     analyte: 'TNF-α',
     form: 'Monomer',
     gramsPerMole: 17400,
@@ -107,6 +157,11 @@ export const BIOMARKERS = [
   },
   {
     id: 'haemoglobin-tetramer',
+    zhTW: {
+      analyte: '血紅素 A',
+      form: 'α₂β₂ 四聚體',
+      why: '紅血球中具功能的四聚體形式。',
+    },
     analyte: 'Haemoglobin A',
     form: 'α₂β₂ tetramer',
     gramsPerMole: 64500,
@@ -116,6 +171,11 @@ export const BIOMARKERS = [
   },
   {
     id: 'haemoglobin-beta',
+    zhTW: {
+      analyte: '血紅素 A',
+      form: 'β 次單元',
+      why: '單一條血紅素鏈。',
+    },
     analyte: 'Haemoglobin A',
     form: 'β subunit',
     gramsPerMole: 15900,
@@ -125,6 +185,11 @@ export const BIOMARKERS = [
   },
   {
     id: 'igg',
+    zhTW: {
+      analyte: '免疫球蛋白 G（IgG）',
+      form: '完整抗體',
+      why: '完整的免疫球蛋白，即血清中所量測的形式。',
+    },
     analyte: 'Immunoglobulin G (IgG)',
     form: 'Whole antibody',
     gramsPerMole: 150000,
@@ -134,6 +199,11 @@ export const BIOMARKERS = [
   },
   {
     id: 'albumin-hsa',
+    zhTW: {
+      analyte: '人類血清白蛋白',
+      form: '成熟 HSA',
+      why: '循環中僅有單一形式，不存在歧義。',
+    },
     analyte: 'Human serum albumin',
     form: 'Mature HSA',
     gramsPerMole: 66437,
@@ -143,6 +213,11 @@ export const BIOMARKERS = [
   },
   {
     id: 'il6',
+    zhTW: {
+      analyte: '介白素-6（IL-6）',
+      form: '成熟單體',
+      why: '以單體形式作用，醣化會使表觀分子量略為提高。',
+    },
     analyte: 'Interleukin-6 (IL-6)',
     form: 'Mature monomer',
     gramsPerMole: 21000,
@@ -152,6 +227,11 @@ export const BIOMARKERS = [
   },
   {
     id: 'fibrinogen',
+    zhTW: {
+      analyte: '纖維蛋白原',
+      form: '六聚體（Aα₂Bβ₂γ₂）',
+      why: '在循環中僅以組裝完成的六聚體存在。',
+    },
     analyte: 'Fibrinogen',
     form: 'Hexamer (Aα₂Bβ₂γ₂)',
     gramsPerMole: 340000,
@@ -161,6 +241,11 @@ export const BIOMARKERS = [
   },
   {
     id: 'thyroglobulin',
+    zhTW: {
+      analyte: '甲狀腺球蛋白',
+      form: '二聚體',
+      why: '以二聚體的形式分泌並量測。',
+    },
     analyte: 'Thyroglobulin',
     form: 'Dimer',
     gramsPerMole: 660000,
@@ -170,6 +255,11 @@ export const BIOMARKERS = [
   },
   {
     id: 'bsa',
+    zhTW: {
+      analyte: '牛血清白蛋白（BSA）',
+      form: '成熟 BSA',
+      why: '常用的阻斷與校正蛋白，僅有單一形式。',
+    },
     analyte: 'Bovine serum albumin (BSA)',
     form: 'Mature BSA',
     gramsPerMole: 66433,
@@ -179,6 +269,11 @@ export const BIOMARKERS = [
   },
   {
     id: 'glucose',
+    zhTW: {
+      analyte: '葡萄糖',
+      form: 'C₆H₁₂O₆',
+      why: '小分子，具確定的化學式質量，無寡聚體歧義。',
+    },
     analyte: 'Glucose',
     form: 'C₆H₁₂O₆',
     gramsPerMole: 180.156,
@@ -188,6 +283,11 @@ export const BIOMARKERS = [
   },
   {
     id: 'cortisol',
+    zhTW: {
+      analyte: '皮質醇',
+      form: 'C₂₁H₃₀O₅',
+      why: '小分子，具確定的化學式質量，無寡聚體歧義。',
+    },
     analyte: 'Cortisol',
     form: 'C₂₁H₃₀O₅',
     gramsPerMole: 362.46,
@@ -196,6 +296,20 @@ export const BIOMARKERS = [
     accession: null,
   },
 ];
+
+/**
+ * A biomarker's fields in the active locale, falling back to English. The
+ * molecular form is part of the entry's identity (ADR-0003), so it is
+ * translated with it rather than left in English beside a translated name.
+ */
+export function localised(entry, locale = 'en') {
+  const translation = locale === 'en' ? null : entry[locale.replace('-', '')];
+  return {
+    analyte: translation?.analyte ?? entry.analyte,
+    form: translation?.form ?? entry.form,
+    why: translation?.why ?? entry.why,
+  };
+}
 
 /** Analyte names in list order, for building option groups. */
 export function analytes() {

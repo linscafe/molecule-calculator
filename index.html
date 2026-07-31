@@ -14,37 +14,47 @@
   <body>
     <header class="page-header">
       <div class="page-header__text">
-        <h1>Number of Molecules Calculator</h1>
-        <p class="subtitle">
+        <h1 data-i18n="app.title">Number of Molecules Calculator</h1>
+        <p class="subtitle" data-i18n="app.subtitle">
           Estimate how many molecules are present in a given volume.
         </p>
       </div>
-      <svg
-        class="channel-illustration"
-        viewBox="0 0 240 64"
-        aria-hidden="true"
-        focusable="false"
-      >
-        <rect x="2" y="14" width="236" height="36" rx="6" class="channel-wall" />
-        <rect x="8" y="20" width="224" height="24" rx="3" class="channel-bore" />
-        <g class="channel-molecules">
-          <circle cx="34" cy="27" r="3.2" />
-          <circle cx="62" cy="37" r="3.2" />
-          <circle cx="88" cy="24" r="3.2" />
-          <circle cx="115" cy="34" r="3.2" />
-          <circle cx="141" cy="28" r="3.2" />
-          <circle cx="168" cy="38" r="3.2" />
-          <circle cx="196" cy="26" r="3.2" />
-          <circle cx="216" cy="35" r="3.2" />
-        </g>
-      </svg>
+
+      <div class="page-header__aside">
+        <div class="segmented segmented--language" role="radiogroup" data-i18n-aria="lang.aria" aria-label="Interface language">
+          <input type="radio" id="lang-en" name="locale" value="en" checked />
+          <label for="lang-en" data-i18n="lang.en">English</label>
+          <input type="radio" id="lang-zh" name="locale" value="zh-TW" />
+          <label for="lang-zh" data-i18n="lang.zh-TW">繁體中文</label>
+        </div>
+
+        <svg
+          class="channel-illustration"
+          viewBox="0 0 240 64"
+          aria-hidden="true"
+          focusable="false"
+        >
+          <rect x="2" y="14" width="236" height="36" rx="6" class="channel-wall" />
+          <rect x="8" y="20" width="224" height="24" rx="3" class="channel-bore" />
+          <g class="channel-molecules">
+            <circle cx="34" cy="27" r="3.2" />
+            <circle cx="62" cy="37" r="3.2" />
+            <circle cx="88" cy="24" r="3.2" />
+            <circle cx="115" cy="34" r="3.2" />
+            <circle cx="141" cy="28" r="3.2" />
+            <circle cx="168" cy="38" r="3.2" />
+            <circle cx="196" cy="26" r="3.2" />
+            <circle cx="216" cy="35" r="3.2" />
+          </g>
+        </svg>
+      </div>
     </header>
 
     <main class="layout">
       <!-- No <form>: without a submit button, Enter inside a form behaves
            inconsistently across browsers. app.js binds Enter explicitly. -->
       <section class="card" aria-labelledby="inputs-heading">
-        <h2 id="inputs-heading">Inputs</h2>
+        <h2 id="inputs-heading" data-i18n="section.inputs">Inputs</h2>
 
         <fieldset class="field-group">
           <legend>
@@ -52,40 +62,43 @@
               <path d="M4 8l8-4 8 4v8l-8 4-8-4z" />
               <path d="M4 8l8 4 8-4M12 12v8" />
             </svg>
-            Sample volume
+            <span data-i18n="group.volume">Sample volume</span>
           </legend>
 
-          <div class="segmented" role="radiogroup" aria-label="How to specify the volume">
+          <div class="segmented" role="radiogroup" data-i18n-aria="mode.aria" aria-label="How to specify the volume">
             <input type="radio" id="mode-dimensions" name="volume-mode" value="dimensions" checked />
-            <label for="mode-dimensions">Calculate from dimensions</label>
+            <label for="mode-dimensions" data-i18n="mode.dimensions">Calculate from dimensions</label>
             <input type="radio" id="mode-volume" name="volume-mode" value="volume" />
-            <label for="mode-volume">Enter volume directly</label>
+            <label for="mode-volume" data-i18n="mode.volume">Enter volume directly</label>
           </div>
 
           <div id="dimensions-panel" class="mode-panel">
             <div class="measure">
-              <label for="height">Height</label>
+              <label for="height" data-i18n="field.height">Height</label>
               <div class="measure__controls">
-                <input id="height" type="text" inputmode="decimal" autocomplete="off" />
-                <select id="height-unit" aria-label="Height unit"></select>
+                <input id="height" type="text" inputmode="decimal" autocomplete="off"
+                  data-i18n-placeholder="placeholder.height" placeholder="e.g. 100" />
+                <select id="height-unit" data-i18n-aria="unit.height" aria-label="Height unit"></select>
               </div>
               <p class="field-error" id="height-error" hidden></p>
             </div>
 
             <div class="measure">
-              <label for="width">Width</label>
+              <label for="width" data-i18n="field.width">Width</label>
               <div class="measure__controls">
-                <input id="width" type="text" inputmode="decimal" autocomplete="off" />
-                <select id="width-unit" aria-label="Width unit"></select>
+                <input id="width" type="text" inputmode="decimal" autocomplete="off"
+                  data-i18n-placeholder="placeholder.width" placeholder="e.g. 50" />
+                <select id="width-unit" data-i18n-aria="unit.width" aria-label="Width unit"></select>
               </div>
               <p class="field-error" id="width-error" hidden></p>
             </div>
 
             <div class="measure">
-              <label for="length">Length</label>
+              <label for="length" data-i18n="field.length">Length</label>
               <div class="measure__controls">
-                <input id="length" type="text" inputmode="decimal" autocomplete="off" />
-                <select id="length-unit" aria-label="Length unit"></select>
+                <input id="length" type="text" inputmode="decimal" autocomplete="off"
+                  data-i18n-placeholder="placeholder.length" placeholder="e.g. 10" />
+                <select id="length-unit" data-i18n-aria="unit.length" aria-label="Length unit"></select>
               </div>
               <p class="field-error" id="length-error" hidden></p>
             </div>
@@ -93,10 +106,11 @@
 
           <div id="volume-panel" class="mode-panel" hidden>
             <div class="measure">
-              <label for="volume">Volume</label>
+              <label for="volume" data-i18n="field.volume">Volume</label>
               <div class="measure__controls">
-                <input id="volume" type="text" inputmode="decimal" autocomplete="off" />
-                <select id="volume-unit" aria-label="Volume unit"></select>
+                <input id="volume" type="text" inputmode="decimal" autocomplete="off"
+                  data-i18n-placeholder="placeholder.volume" placeholder="e.g. 5" />
+                <select id="volume-unit" data-i18n-aria="unit.volume" aria-label="Volume unit"></select>
               </div>
               <p class="field-error" id="volume-error" hidden></p>
               <p class="field-note" id="volume-equivalence" hidden></p>
@@ -110,51 +124,47 @@
               <path d="M9 3h6v5l4 10a2 2 0 01-1.9 3H6.9A2 2 0 015 18L9 8z" />
               <path d="M6.6 14h10.8" />
             </svg>
-            Concentration
+            <span data-i18n="group.concentration">Concentration</span>
           </legend>
 
           <div class="measure">
-            <label for="concentration-type">Concentration type</label>
+            <label for="concentration-type" data-i18n="label.concentrationType">Concentration type</label>
             <select id="concentration-type">
-              <option value="molar">Molar concentration</option>
-              <option value="mass">Mass concentration</option>
+              <option value="molar" data-i18n="conc.molar">Molar concentration</option>
+              <option value="mass" data-i18n="conc.mass">Mass concentration</option>
             </select>
           </div>
 
           <div class="measure">
-            <label for="concentration">Concentration</label>
+            <label for="concentration" data-i18n="field.concentration">Concentration</label>
             <div class="measure__controls">
-              <input id="concentration" type="text" inputmode="decimal" autocomplete="off" />
-              <select id="concentration-unit" aria-label="Concentration unit"></select>
+              <input id="concentration" type="text" inputmode="decimal" autocomplete="off"
+                data-i18n-placeholder="placeholder.concentration" placeholder="e.g. 10" />
+              <select id="concentration-unit" data-i18n-aria="unit.concentration" aria-label="Concentration unit"></select>
             </div>
             <p class="field-error" id="concentration-error" hidden></p>
           </div>
         </fieldset>
 
         <fieldset class="field-group" id="molecular-weight-group" hidden>
-          <legend>Molecular weight</legend>
-          <p class="field-note">
+          <legend><span data-i18n="group.molecularWeight">Molecular weight</span></legend>
+          <p class="field-note" data-i18n="mw.note">
             Molecular weight is needed only when concentration is expressed as
             mass per volume, such as ng/mL.
           </p>
 
           <div class="measure">
-            <label for="biomarker">Common biomarker</label>
+            <label for="biomarker" data-i18n="mw.biomarker">Common biomarker</label>
             <select id="biomarker"></select>
             <p class="field-note" id="biomarker-why" hidden></p>
           </div>
 
           <div class="measure">
-            <label for="molecular-weight">Molecular weight</label>
+            <label for="molecular-weight" data-i18n="field.molecularWeight">Molecular weight</label>
             <div class="measure__controls">
-              <input
-                id="molecular-weight"
-                type="text"
-                inputmode="decimal"
-                autocomplete="off"
-                placeholder="150,000"
-              />
-              <select id="molecular-weight-unit" aria-label="Molecular weight unit"></select>
+              <input id="molecular-weight" type="text" inputmode="decimal" autocomplete="off"
+                data-i18n-placeholder="placeholder.molecularWeight" placeholder="e.g. 150,000" />
+              <select id="molecular-weight-unit" data-i18n-aria="unit.molecularWeight" aria-label="Molecular weight unit"></select>
             </div>
             <p class="field-error" id="molecular-weight-error" hidden></p>
           </div>
@@ -165,61 +175,67 @@
             <svg class="icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
               <path d="M12 5v14M8 5h8M8 19h8M12 9l4 3-4 3" />
             </svg>
-            Uncertainty
+            <span data-i18n="group.uncertainty">Uncertainty</span>
           </legend>
 
           <div class="switch">
             <input type="checkbox" id="uncertainty-enabled" />
-            <label for="uncertainty-enabled">Include input uncertainty</label>
+            <label for="uncertainty-enabled" data-i18n="uncertainty.enable">Include input uncertainty</label>
           </div>
 
           <div id="uncertainty-panel" hidden>
-            <p class="field-note">
+            <p class="field-note" data-i18n="uncertainty.note">
               Leave any field blank to treat that input as exact.
             </p>
-            <button type="button" id="uncertainty-preset" class="link-button">
+            <button type="button" id="uncertainty-preset" class="link-button" data-i18n="uncertainty.preset">
               Fill a typical laboratory estimate (an assumption, not a measurement)
             </button>
 
             <div class="measure" data-uncertainty-for="dimensions">
-              <label for="u-height">Height uncertainty</label>
+              <label for="u-height" data-i18n="uncertainty.height">Height uncertainty</label>
               <div class="measure__controls">
-                <input id="u-height" type="text" inputmode="decimal" autocomplete="off" />
+                <input id="u-height" type="text" inputmode="decimal" autocomplete="off"
+                  data-i18n-placeholder="placeholder.uncertaintyDimension" placeholder="e.g. 2" />
                 <select id="u-height-kind" aria-label="Height uncertainty kind"></select>
               </div>
             </div>
             <div class="measure" data-uncertainty-for="dimensions">
-              <label for="u-width">Width uncertainty</label>
+              <label for="u-width" data-i18n="uncertainty.width">Width uncertainty</label>
               <div class="measure__controls">
-                <input id="u-width" type="text" inputmode="decimal" autocomplete="off" />
+                <input id="u-width" type="text" inputmode="decimal" autocomplete="off"
+                  data-i18n-placeholder="placeholder.uncertaintyDimension" placeholder="e.g. 2" />
                 <select id="u-width-kind" aria-label="Width uncertainty kind"></select>
               </div>
             </div>
             <div class="measure" data-uncertainty-for="dimensions">
-              <label for="u-length">Length uncertainty</label>
+              <label for="u-length" data-i18n="uncertainty.length">Length uncertainty</label>
               <div class="measure__controls">
-                <input id="u-length" type="text" inputmode="decimal" autocomplete="off" />
+                <input id="u-length" type="text" inputmode="decimal" autocomplete="off"
+                  data-i18n-placeholder="placeholder.uncertaintyDimension" placeholder="e.g. 2" />
                 <select id="u-length-kind" aria-label="Length uncertainty kind"></select>
               </div>
             </div>
             <div class="measure" data-uncertainty-for="volume" hidden>
-              <label for="u-volume">Volume uncertainty</label>
+              <label for="u-volume" data-i18n="uncertainty.volume">Volume uncertainty</label>
               <div class="measure__controls">
-                <input id="u-volume" type="text" inputmode="decimal" autocomplete="off" />
+                <input id="u-volume" type="text" inputmode="decimal" autocomplete="off"
+                  data-i18n-placeholder="placeholder.uncertaintyDimension" placeholder="e.g. 2" />
                 <select id="u-volume-kind" aria-label="Volume uncertainty kind"></select>
               </div>
             </div>
             <div class="measure">
-              <label for="u-concentration">Concentration uncertainty</label>
+              <label for="u-concentration" data-i18n="uncertainty.concentration">Concentration uncertainty</label>
               <div class="measure__controls">
-                <input id="u-concentration" type="text" inputmode="decimal" autocomplete="off" />
+                <input id="u-concentration" type="text" inputmode="decimal" autocomplete="off"
+                  data-i18n-placeholder="placeholder.uncertaintyConcentration" placeholder="e.g. 5" />
                 <select id="u-concentration-kind" aria-label="Concentration uncertainty kind"></select>
               </div>
             </div>
             <div class="measure" data-uncertainty-for="mass" hidden>
-              <label for="u-molecular-weight">Molecular-weight uncertainty</label>
+              <label for="u-molecular-weight" data-i18n="uncertainty.molecularWeight">Molecular-weight uncertainty</label>
               <div class="measure__controls">
-                <input id="u-molecular-weight" type="text" inputmode="decimal" autocomplete="off" />
+                <input id="u-molecular-weight" type="text" inputmode="decimal" autocomplete="off"
+                  data-i18n-placeholder="placeholder.uncertaintyConcentration" placeholder="e.g. 5" />
                 <select id="u-molecular-weight-kind" aria-label="Molecular weight uncertainty kind"></select>
               </div>
             </div>
@@ -227,8 +243,8 @@
         </fieldset>
 
         <div class="actions">
-          <button type="button" id="reset">Reset</button>
-          <button type="button" id="copy">Copy result</button>
+          <button type="button" id="reset" data-i18n="action.reset">Reset</button>
+          <button type="button" id="copy" data-i18n="action.copy">Copy result</button>
           <span class="copy-status" id="copy-status" role="status" aria-live="polite"></span>
         </div>
       </section>
@@ -242,7 +258,7 @@
               <circle cx="12" cy="17" r="2.6" />
               <path d="M8.9 9.4l2.4 5.4M15.6 9.2l-2.6 5.6M9.5 7.6h5" />
             </svg>
-            Number of molecules
+            <span data-i18n="result.heading">Number of molecules</span>
           </h2>
 
           <!-- The only channel by which a screen-reader user learns a result
@@ -259,27 +275,27 @@
         </section>
 
         <section class="card" id="uncertainty-card" aria-labelledby="uncertainty-heading" hidden>
-          <h2 id="uncertainty-heading">Estimated uncertainty interval</h2>
+          <h2 id="uncertainty-heading" data-i18n="interval.heading">Estimated uncertainty interval</h2>
           <p class="interval" id="interval"></p>
           <p class="interval-relative" id="interval-relative"></p>
           <div id="interval-warning"></div>
-          <p class="explanation">
+          <p class="explanation" data-i18n="interval.explanation">
             This interval describes how much the estimated molecule count could
             vary because the inputs are uncertain. It is not a guarantee that
             the true value falls inside the range. The estimate assumes the
             input errors are independent and approximately normally distributed.
           </p>
-          <h3>Assumptions</h3>
+          <h3 data-i18n="assumptions.heading">Assumptions</h3>
           <ul class="assumptions">
-            <li>Molecules are uniformly distributed in the volume</li>
-            <li>Concentration represents freely available molecules</li>
-            <li>Input uncertainties are independent</li>
-            <li>The reported interval is an approximate 95% uncertainty interval</li>
+            <li data-i18n="assumptions.uniform">Molecules are uniformly distributed in the volume</li>
+            <li data-i18n="assumptions.free">Concentration represents freely available molecules</li>
+            <li data-i18n="assumptions.independent">Input uncertainties are independent</li>
+            <li data-i18n="assumptions.interval">The reported interval is an approximate 95% uncertainty interval</li>
           </ul>
         </section>
 
         <details class="card" id="breakdown-card">
-          <summary>Calculation details</summary>
+          <summary data-i18n="breakdown.summary">Calculation details</summary>
           <ol class="breakdown" id="breakdown"></ol>
         </details>
       </div>
@@ -287,9 +303,9 @@
 
     <footer class="page-footer">
       <p>
-        <a href="https://github.com/linscafe/molecule-calculator">Source on GitHub</a>
+        <a href="https://github.com/linscafe/molecule-calculator" data-i18n="footer.source">Source on GitHub</a>
       </p>
-      <p class="disclaimer">
+      <p class="disclaimer" data-i18n="footer.disclaimer">
         This tool provides an estimate; it does not account for molecular
         aggregation, binding, losses, or concentration gradients unless modeled
         explicitly.

@@ -1,11 +1,12 @@
 :root {
-  color-scheme: light dark;
+  color-scheme: light;
 
   --bg: #f4f6f9;
   --surface: #ffffff;
   --border: #d3dae3;
   --text: #16202c;
   --text-muted: #4c5a6b;
+  --text-placeholder: #78859a;
   --accent: #1b5e9c;
   --accent-soft: #e7f0f9;
   --error: #a02020;
@@ -14,22 +15,6 @@
   --warning-text: #6b4a08;
   --radius: 10px;
   --gap: 1.25rem;
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --bg: #10151c;
-    --surface: #17202a;
-    --border: #2c3947;
-    --text: #e8eef5;
-    --text-muted: #a5b3c4;
-    --accent: #7cb6ec;
-    --accent-soft: #1c2c3d;
-    --error: #ff9a9a;
-    --warning-bg: #2e2413;
-    --warning-border: #a37a2a;
-    --warning-text: #f2d79b;
-  }
 }
 
 *,
@@ -87,6 +72,25 @@ a {
 .subtitle {
   margin: 0;
   color: var(--text-muted);
+}
+
+.page-header__aside {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 0.75rem;
+}
+
+.segmented--language {
+  margin-bottom: 0;
+  align-self: flex-end;
+  width: max-content;
+}
+
+.segmented--language label {
+  padding: 0.35rem 0.85rem;
+  font-size: 0.85rem;
+  white-space: nowrap;
 }
 
 .channel-illustration {
@@ -208,6 +212,11 @@ select {
 
 input[type="text"] {
   width: 100%;
+}
+
+::placeholder {
+  color: var(--text-placeholder);
+  opacity: 1; /* Firefox dims placeholders by default; we set the colour. */
 }
 
 input[aria-invalid="true"] {

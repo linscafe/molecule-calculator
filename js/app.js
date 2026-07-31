@@ -1,5 +1,8 @@
 // Interface layer. Everything that touches the DOM lives here, so that the
 // calculation modules stay importable by `node --test` (ADR-0002).
+//
+// It is also the only layer that knows what language the user reads. The
+// calculation modules return codes; the sentences are chosen here.
 
 import {
   LENGTH_UNITS,
@@ -37,10 +40,12 @@ import {
   scientific,
 } from './formatters.js';
 import { parseDecimal, plausibilityWarnings, validate } from './validation.js';
-import { BIOMARKERS, analytes, findBiomarker, formsFor } from './biomarkers.js';
+import { analytes, findBiomarker, formsFor, localised } from './biomarkers.js';
+import { DEFAULT_LOCALE, LOCALES, getLocale, setLocale, t } from './i18n.js';
 
 /** Long enough that typing a six-digit molecular weight announces once. */
 const DEBOUNCE_MS = 500;
+const LOCALE_STORAGE_KEY = 'molecule-calculator.locale';
 
 const DEFAULT_UNITS = {
   'height-unit': 'um',
@@ -49,8 +54,6 @@ const DEFAULT_UNITS = {
   'volume-unit': 'uL',
   'molecular-weight-unit': 'g/mol',
 };
-
-const UNCERTAINTY_KINDS = { percent: '%', absolute: 'absolute' };
 
 const el = (id) => document.getElementById(id);
 const num = (raw) => Number(parseDecimal(String(raw).trim()));
@@ -62,6 +65,15 @@ const MEASURE_FIELDS = [
   'volume',
   'concentration',
   'molecular-weight',
+];
+
+const UNCERTAINTY_FIELDS = [
+  ['u-height', 'uncertainty.height'],
+  ['u-width', 'uncertainty.width'],
+  ['u-length', 'uncertainty.length'],
+  ['u-volume', 'uncertainty.volume'],
+  ['u-concentration', 'uncertainty.concentration'],
+  ['u-molecular-weight', 'uncertainty.molecularWeight'],
 ];
 
 // Fields whose error has been shown at least once. Errors appear on blur, not
@@ -79,6 +91,7 @@ function fillUnitSelect(select, table, selected) {
     ...Object.entries(table).map(([key, unit]) => {
       const option = document.createElement('option');
       option.value = key;
+      // Unit symbols are not translated: µm is µm in every language.
       option.textContent = unit.label;
       option.selected = key === selected;
       return option;
@@ -86,27 +99,36 @@ function fillUnitSelect(select, table, selected) {
   );
 }
 
-function fillKindSelect(select) {
-  select.replaceChildren(
-    ...Object.entries(UNCERTAINTY_KINDS).map(([key, label]) => {
-      const option = document.createElement('option');
-      option.value = key;
-      option.textContent = label;
-      return option;
-    }),
-  );
+function fillKindSelects() {
+  for (const [id, labelKey] of UNCERTAINTY_FIELDS) {
+    const select = el(`${id}-kind`);
+    const chosen = select.value;
+    select.replaceChildren(
+      ...['percent', 'absolute'].map((kind) => {
+        const option = document.createElement('option');
+        option.value = kind;
+        option.textContent = t(`kind.${kind}`);
+        return option;
+      }),
+    );
+    if (chosen) select.value = chosen;
+    select.setAttribute('aria-label', t('kind.aria', { label: t(labelKey) }));
+  }
 }
 
 function fillBiomarkers() {
   const select = el('biomarker');
+  const chosen = select.value;
+  const locale = getLocale();
+
   const blank = document.createElement('option');
   blank.value = '';
-  blank.textContent = 'Custom / not listed';
+  blank.textContent = t('mw.custom');
   select.replaceChildren(blank);
 
   for (const analyte of analytes()) {
     const group = document.createElement('optgroup');
-    group.label = analyte;
+    group.label = localised(formsFor(analyte)[0], locale).analyte;
     for (const entry of formsFor(analyte)) {
       const option = document.createElement('option');
       option.value = entry.id;
@@ -114,13 +136,15 @@ function fillBiomarkers() {
         entry.gramsPerMole >= 1000
           ? `${entry.gramsPerMole / 1000} kDa`
           : `${entry.gramsPerMole} g/mol`;
+      const { form } = localised(entry, locale);
       option.textContent = entry.recommended
-        ? `${entry.form} — ${mass} (recommended)`
-        : `${entry.form} — ${mass}`;
+        ? `${form} — ${mass}（${t('mw.recommended')}）`
+        : `${form} — ${mass}`;
       group.append(option);
     }
     select.append(group);
   }
+  if (chosen) select.value = chosen;
 }
 
 function populate() {
@@ -133,19 +157,14 @@ function populate() {
     fillUnitSelect(el(id), table, selected);
   }
   syncConcentrationUnits();
-  for (const id of [
-    'u-height-kind',
-    'u-width-kind',
-    'u-length-kind',
-    'u-volume-kind',
-    'u-concentration-kind',
-    'u-molecular-weight-kind',
-  ]) {
-    fillKindSelect(el(id));
-  }
+  fillKindSelects();
   fillBiomarkers();
 }
 
+// Called only on startup, on Reset, and when the concentration type changes —
+// all three of which want the default unit, never the previous one. An earlier
+// version preserved the selection here, which quietly broke Reset: leaving the
+// unit on M after a reset made every subsequent result 10^9 too large.
 function syncConcentrationUnits() {
   const isMass = el('concentration-type').value === 'mass';
   fillUnitSelect(
@@ -153,6 +172,57 @@ function syncConcentrationUnits() {
     isMass ? MASS_CONCENTRATION_UNITS : MOLAR_UNITS,
     isMass ? 'ng/mL' : 'nM',
   );
+}
+
+// -------------------------------------------------------------------- locale
+
+function applyTranslations() {
+  const locale = getLocale();
+  document.documentElement.lang = locale;
+  document.title = t('app.title');
+
+  for (const node of document.querySelectorAll('[data-i18n]')) {
+    node.textContent = t(node.dataset.i18n);
+  }
+  for (const node of document.querySelectorAll('[data-i18n-placeholder]')) {
+    node.placeholder = t(node.dataset.i18nPlaceholder);
+  }
+  for (const node of document.querySelectorAll('[data-i18n-aria]')) {
+    node.setAttribute('aria-label', t(node.dataset.i18nAria));
+  }
+
+  // Selects whose option text is generated rather than marked up.
+  fillKindSelects();
+  fillBiomarkers();
+  syncBiomarkerWhy();
+
+  // The live region dedupes identical text; a language change must be allowed
+  // through even when the number itself has not moved.
+  lastAnnounced = '';
+}
+
+function changeLocale(locale) {
+  setLocale(locale);
+  try {
+    localStorage.setItem(LOCALE_STORAGE_KEY, locale);
+  } catch {
+    // Private browsing, or storage disabled. The choice simply will not
+    // survive a reload, which is not worth failing the switch over.
+  }
+  applyTranslations();
+  renderNow();
+}
+
+function restoreLocale() {
+  let stored = null;
+  try {
+    stored = localStorage.getItem(LOCALE_STORAGE_KEY);
+  } catch {
+    stored = null;
+  }
+  const locale = LOCALES.includes(stored) ? stored : DEFAULT_LOCALE;
+  setLocale(locale);
+  el(locale === 'zh-TW' ? 'lang-zh' : 'lang-en').checked = true;
 }
 
 // -------------------------------------------------------------------- state
@@ -291,15 +361,21 @@ function show(node, visible) {
   node.hidden = !visible;
 }
 
+const fieldLabel = (field) =>
+  t(`field.${field === 'molecular-weight' ? 'molecularWeight' : field}`);
+
 function renderFieldErrors(errors) {
   for (const field of MEASURE_FIELDS) {
     const key = field === 'molecular-weight' ? 'molecularWeight' : field;
     const node = el(`${field}-error`);
     if (!node) continue;
-    const message = touched.has(field) ? errors[key] : undefined;
-    node.textContent = message ?? '';
-    show(node, Boolean(message));
-    el(field).setAttribute('aria-invalid', errors[key] ? 'true' : 'false');
+    const code = errors[key];
+    const visible = touched.has(field) && code !== undefined;
+    node.textContent = visible
+      ? t(`error.${code}`, { label: fieldLabel(field) })
+      : '';
+    show(node, visible);
+    el(field).setAttribute('aria-invalid', code ? 'true' : 'false');
   }
 }
 
@@ -310,7 +386,7 @@ function renderWarnings(warnings) {
       const p = document.createElement('p');
       p.className = 'warning';
       p.dataset.code = warning.code;
-      p.textContent = warning.message;
+      p.textContent = t(`warn.${warning.code}`);
       return p;
     }),
   );
@@ -327,27 +403,26 @@ function renderOccupancy(moleculeCount) {
 
   const heading = document.createElement('p');
   heading.className = 'occupancy__heading';
-  heading.textContent = 'In equivalent volumes:';
+  heading.textContent = t('occupancy.heading');
 
   const list = document.createElement('ul');
   list.className = 'occupancy__list';
-  for (const [share, label] of [
-    [probabilities.zero, 'contain 0 molecules'],
-    [probabilities.one, 'contain 1'],
-    [probabilities.twoOrMore, 'contain 2 or more'],
+  for (const [share, key] of [
+    [probabilities.zero, 'occupancy.zero'],
+    [probabilities.one, 'occupancy.one'],
+    [probabilities.twoOrMore, 'occupancy.twoOrMore'],
   ]) {
     const item = document.createElement('li');
     const value = document.createElement('span');
     value.className = 'occupancy__value';
     value.textContent = percent(share);
-    item.append(value, ` ${label}`);
+    item.append(value, ` ${t(key)}`);
     list.append(item);
   }
 
   const note = document.createElement('p');
   note.className = 'field-note';
-  note.textContent =
-    'Assumes molecules are randomly and independently distributed (Poisson).';
+  note.textContent = t('occupancy.note');
 
   container.replaceChildren(heading, list, note);
   show(container, true);
@@ -373,26 +448,24 @@ function renderInterval(interval) {
     if (rounded === 0) return '0';
     return primaryCount(rounded, Math.max(1, exponentOf(rounded) - place + 1));
   };
-  el('interval').textContent =
-    `${bound(interval.lower)} to ${bound(interval.upper)} molecules`;
-  el('interval-relative').textContent =
-    `Combined relative uncertainty: ${percent(interval.relative)} ` +
-    `(k = 2, approximately 95% coverage).`;
+
+  el('interval').textContent = t('interval.range', {
+    lower: bound(interval.lower),
+    upper: bound(interval.upper),
+  });
+  el('interval-relative').textContent = t('interval.relative', {
+    percent: percent(interval.relative),
+  });
 
   const warning = el('interval-warning');
   const messages = [];
   if (interval.exceedsLinearity) {
     messages.push(
-      `Relative uncertainty is ${percent(interval.relative)}. At this magnitude ` +
-        'the linear approximation is unreliable; treat the interval as ' +
-        'indicative only.',
+      t('interval.linearity', { percent: percent(interval.relative) }),
     );
   }
-  if (interval.clamped) {
-    messages.push(
-      'The interval is truncated at zero. A molecule count cannot be negative.',
-    );
-  }
+  if (interval.clamped) messages.push(t('interval.clamped'));
+
   warning.replaceChildren(
     ...messages.map((text) => {
       const p = document.createElement('p');
@@ -410,41 +483,39 @@ function breakdownSteps(state, result) {
 
   if (state.volumeMode === 'dimensions') {
     steps.push({
-      title: 'Dimensions entered',
+      title: t('step.dimensions'),
       lines: [
-        `Height = ${values.height} ${label(LENGTH_UNITS, units.height)}`,
-        `Width = ${values.width} ${label(LENGTH_UNITS, units.width)}`,
-        `Length = ${values.length} ${label(LENGTH_UNITS, units.length)}`,
+        `${t('field.height')} = ${values.height} ${label(LENGTH_UNITS, units.height)}`,
+        `${t('field.width')} = ${values.width} ${label(LENGTH_UNITS, units.width)}`,
+        `${t('field.length')} = ${values.length} ${label(LENGTH_UNITS, units.length)}`,
       ],
     });
     steps.push({
-      title: 'Converted volume',
-      lines: [
-        `V = h × w × l`,
-        `V = ${scientific(result.volumeLitres)} L`,
-      ],
+      title: t('step.volumeConverted'),
+      lines: ['V = h × w × l', `V = ${scientific(result.volumeLitres)} L`],
     });
   } else {
     const entered = `${values.volume} ${label(VOLUME_UNITS, units.volume)}`;
     const twins = equivalentVolumeUnits(units.volume);
-    const lines = [`Volume entered = ${entered}`];
+    const lines = [t('breakdown.volumeEntered', { value: entered })];
     // Equivalent units are the same scale by definition, so stating a
     // conversion between them would be a no-op line that looks like a bug.
     if (twins.length > 0) {
       lines.push(
-        `${label(VOLUME_UNITS, units.volume)} is exactly ${twins
-          .map((t) => label(VOLUME_UNITS, t))
-          .join(' and ')}`,
+        t('breakdown.equivalence', {
+          unit: label(VOLUME_UNITS, units.volume),
+          others: twins.map((twin) => label(VOLUME_UNITS, twin)).join(' / '),
+        }),
       );
     }
     lines.push(`V = ${scientific(result.volumeLitres)} L`);
-    steps.push({ title: 'Volume', lines });
+    steps.push({ title: t('step.volume'), lines });
   }
 
   if (state.concentrationType === 'mass') {
     const biomarker = findBiomarker(el('biomarker').value);
     steps.push({
-      title: 'Mass concentration',
+      title: t('step.massConcentration'),
       lines: [
         `C = ${values.concentration} ${label(MASS_CONCENTRATION_UNITS, units.concentration)} = ${scientific(result.gramsPerLitre)} g/L`,
       ],
@@ -453,21 +524,21 @@ function breakdownSteps(state, result) {
     // check what they typed rather than only its converted 3-figure rendering.
     const enteredMw = `${values.molecularWeight} ${label(MOLECULAR_WEIGHT_UNITS, units.molecularWeight)}`;
     steps.push({
-      title: 'Molecular weight',
+      title: t('step.molecularWeight'),
       lines: [
         units.molecularWeight === 'g/mol'
           ? `MW = ${enteredMw}`
           : `MW = ${enteredMw} = ${scientific(result.gramsPerMole)} g/mol`,
         ...(biomarker
           ? [
-              `From ${biomarker.analyte} — ${biomarker.form}` +
+              t('breakdown.from', localised(biomarker, getLocale())) +
                 (biomarker.accession ? ` (UniProt ${biomarker.accession})` : ''),
             ]
           : []),
       ],
     });
     steps.push({
-      title: 'Amount of substance',
+      title: t('step.amount'),
       lines: [
         'n = (C × V) / MW',
         `n = ${scientific(result.amountOfSubstanceMol)} mol`,
@@ -475,22 +546,22 @@ function breakdownSteps(state, result) {
     });
   } else {
     steps.push({
-      title: 'Concentration',
+      title: t('step.concentration'),
       lines: [
         `C = ${values.concentration} ${label(MOLAR_UNITS, units.concentration)} = ${scientific(result.molPerLitre)} mol/L`,
       ],
     });
     steps.push({
-      title: 'Amount of substance',
+      title: t('step.amount'),
       lines: ['n = C × V', `n = ${scientific(result.amountOfSubstanceMol)} mol`],
     });
   }
 
   steps.push({
-    title: 'Number of molecules',
+    title: t('step.molecules'),
     lines: [
       `N = n × ${scientific(AVOGADRO)} mol⁻¹`,
-      `N = ${scientific(result.moleculeCount)} molecules`,
+      `N = ${scientific(result.moleculeCount)}`,
     ],
   });
 
@@ -522,14 +593,18 @@ function announce(text) {
 
 function renderInvalid(validation) {
   lastResult = null;
-  announce('—');
+  announce(t('result.empty'));
   show(el('result-readable'), false);
   show(el('occupancy'), false);
   show(el('uncertainty-card'), false);
   el('warnings').replaceChildren();
   el('breakdown').replaceChildren();
   el('validation-status').textContent = validation.blocking
-    ? `No result yet: ${validation.blocking}`
+    ? t('result.withheld', {
+        reason: t(`error.${validation.blocking.code}`, {
+          label: fieldLabel(validation.blocking.field),
+        }),
+      })
     : '';
 }
 
@@ -547,10 +622,10 @@ function render() {
   const result = compute(state);
   lastResult = { state, result };
 
-  const primary = result.interval
-    ? `${countWithUncertainty(result.moleculeCount, result.interval.standard)} molecules`
-    : `${primaryCount(result.moleculeCount)} molecules`;
-  announce(primary);
+  const count = result.interval
+    ? countWithUncertainty(result.moleculeCount, result.interval.standard)
+    : primaryCount(result.moleculeCount);
+  announce(`${count} ${t('result.molecules')}`);
 
   // Read the readable line off the *rounded* count. Saying "301 million"
   // beside "(3.0 ± 1.8) × 10⁸" would claim a third significant figure the
@@ -559,9 +634,10 @@ function render() {
     result.interval
       ? roundToUncertainty(result.moleculeCount, result.interval.standard).value
       : result.moleculeCount,
+    getLocale(),
   );
   el('result-readable').textContent = readable
-    ? `Approximately ${readable}`
+    ? t('result.approximately', { value: readable })
     : '';
   show(el('result-readable'), Boolean(readable));
 
@@ -619,17 +695,30 @@ function syncVolumeEquivalence() {
     show(node, false);
     return;
   }
-  node.textContent = `1 ${VOLUME_UNITS[unit].label} is exactly 1 ${twins
-    .map((t) => VOLUME_UNITS[t].label)
-    .join(' and 1 ')}.`;
+  node.textContent = t('volume.equivalence', {
+    unit: VOLUME_UNITS[unit].label,
+    others: twins.map((twin) => VOLUME_UNITS[twin].label).join(' / '),
+  });
   show(node, true);
 }
 
-function applyBiomarker() {
+function syncBiomarkerWhy() {
   const entry = findBiomarker(el('biomarker').value);
   const why = el('biomarker-why');
   if (!entry) {
     show(why, false);
+    return;
+  }
+  const { form, why: reason } = localised(entry, getLocale());
+  why.textContent = `${form}: ${reason}`;
+  show(why, true);
+}
+
+function applyBiomarker() {
+  const entry = findBiomarker(el('biomarker').value);
+  if (!entry) {
+    syncBiomarkerWhy();
+    renderNow();
     return;
   }
   // Prefill, never lock — a researcher measuring free PSA specifically must
@@ -649,26 +738,22 @@ function applyBiomarker() {
   input.dataset.exactGramsPerMole = String(entry.gramsPerMole);
   input.dataset.exactUnit = unit;
   touched.add('molecular-weight');
-  why.textContent = `${entry.form}: ${entry.why}`;
-  show(why, true);
+  syncBiomarkerWhy();
   renderNow();
 }
 
 function copyResult() {
   const status = el('copy-status');
   if (!lastResult) {
-    status.textContent = 'Nothing to copy yet.';
+    status.textContent = t('copy.nothing');
     return;
   }
   const { state, result } = lastResult;
-  const lines = [
-    'Number of molecules',
-    el('result-primary').textContent,
-  ];
-  const readable = readableCount(result.moleculeCount);
-  if (readable) lines.push(`Approximately ${readable}`);
+  const lines = [t('result.heading'), el('result-primary').textContent];
+  const readable = readableCount(result.moleculeCount, getLocale());
+  if (readable) lines.push(t('result.approximately', { value: readable }));
 
-  lines.push('', 'Calculation');
+  lines.push('', t('breakdown.calculation'));
   for (const step of breakdownSteps(state, result)) {
     lines.push(`${step.title}:`);
     for (const line of step.lines) lines.push(`  ${line}`);
@@ -677,35 +762,33 @@ function copyResult() {
   if (result.interval) {
     lines.push(
       '',
-      'Estimated uncertainty interval',
-      `  ${primaryCount(result.interval.lower)} to ${primaryCount(result.interval.upper)} molecules`,
-      `  Combined relative uncertainty ${percent(result.interval.relative)}, k = 2`,
+      t('interval.heading'),
+      `  ${el('interval').textContent}`,
+      `  ${el('interval-relative').textContent}`,
     );
-    if (result.interval.clamped) {
-      lines.push('  Truncated at zero; a molecule count cannot be negative.');
-    }
+    if (result.interval.clamped) lines.push(`  ${t('interval.clamped')}`);
     if (result.interval.exceedsLinearity) {
       lines.push(
-        `  Above ${percent(LINEARITY_WARNING_THRESHOLD)} relative uncertainty the linear approximation is unreliable.`,
+        `  ${t('interval.linearity', { percent: percent(LINEARITY_WARNING_THRESHOLD) })}`,
       );
     }
     lines.push(
       '',
-      'Assumptions',
-      '  Molecules are uniformly distributed in the volume',
-      '  Concentration represents freely available molecules',
-      '  Input uncertainties are independent',
-      '  The reported interval is an approximate 95% uncertainty interval',
+      t('assumptions.heading'),
+      `  ${t('assumptions.uniform')}`,
+      `  ${t('assumptions.free')}`,
+      `  ${t('assumptions.independent')}`,
+      `  ${t('assumptions.interval')}`,
     );
   }
 
   navigator.clipboard
     .writeText(lines.join('\n'))
     .then(() => {
-      status.textContent = 'Copied.';
+      status.textContent = t('copy.done');
     })
     .catch(() => {
-      status.textContent = 'Could not copy.';
+      status.textContent = t('copy.failed');
     });
 }
 
@@ -713,16 +796,7 @@ function reset() {
   for (const field of MEASURE_FIELDS) el(field).value = '';
   delete el('molecular-weight').dataset.exactGramsPerMole;
   delete el('molecular-weight').dataset.exactUnit;
-  for (const id of [
-    'u-height',
-    'u-width',
-    'u-length',
-    'u-volume',
-    'u-concentration',
-    'u-molecular-weight',
-  ]) {
-    el(id).value = '';
-  }
+  for (const [id] of UNCERTAINTY_FIELDS) el(id).value = '';
   el('mode-dimensions').checked = true;
   el('concentration-type').value = 'molar';
   el('uncertainty-enabled').checked = false;
@@ -762,16 +836,10 @@ function wire() {
     });
   }
 
-  for (const id of [
-    'height-unit',
-    'width-unit',
-    'length-unit',
-    'volume-unit',
-    'concentration-unit',
-    'molecular-weight-unit',
-  ]) {
+  for (const id of Object.keys(DEFAULT_UNITS)) {
     el(id).addEventListener('change', renderNow);
   }
+  el('concentration-unit').addEventListener('change', renderNow);
   el('volume-unit').addEventListener('change', syncVolumeEquivalence);
 
   for (const id of ['mode-dimensions', 'mode-volume']) {
@@ -794,14 +862,7 @@ function wire() {
     renderNow();
   });
 
-  for (const id of [
-    'u-height',
-    'u-width',
-    'u-length',
-    'u-volume',
-    'u-concentration',
-    'u-molecular-weight',
-  ]) {
+  for (const [id] of UNCERTAINTY_FIELDS) {
     el(id).addEventListener('input', scheduleRender);
     el(id).addEventListener('blur', renderNow);
     el(`${id}-kind`).addEventListener('change', renderNow);
@@ -813,11 +874,19 @@ function wire() {
     renderNow();
   });
 
+  for (const id of ['lang-en', 'lang-zh']) {
+    el(id).addEventListener('change', (event) => {
+      if (event.target.checked) changeLocale(event.target.value);
+    });
+  }
+
   el('reset').addEventListener('click', reset);
   el('copy').addEventListener('click', copyResult);
 }
 
+restoreLocale();
 populate();
+applyTranslations();
 syncModePanels();
 syncConcentrationType();
 wire();

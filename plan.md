@@ -501,6 +501,41 @@ Two consequences follow, and both must be handled:
   immediately, re-announce the result, and blur the field so the mobile keyboard
   dismisses.
 
+## Localisation
+
+The interface ships in English and Traditional Chinese (Taiwan), switched by a
+tab in the header and remembered in `localStorage`.
+
+This is possible only because the calculation modules never build a sentence.
+`validation.js` returns codes — `required`, `notNumber`, `negative`, `zero` —
+and `plausibilityWarnings` returns `{ code }`; `js/i18n.js` chooses the words.
+A module that returned English could not be localised without being rewritten.
+
+Two things are deliberately **not** translated: unit symbols (µm is µm in every
+language) and chemical formulas (C₆H₁₂O₆ is C₆H₁₂O₆ in Chinese).
+
+One thing is not a translation at all. **English groups large numbers in
+thousands; Chinese groups them in myriads.**
+
+```text
+3.01e8   ->  "301 million"      but  「3.01億」
+6.02e14  ->  "602 trillion"     but  「602兆」
+5.0e6    ->  "5 million"        but  「500萬」
+```
+
+The two scale tables share no boundary above 10⁴, so the zh-TW row is a
+separate system rather than a word-for-word rendering of the English one.
+The "(short scale)" qualifier is English-only: it exists because *billion* is
+10⁹ on the short scale and 10¹² on the long scale, an ambiguity the Chinese
+myriad system does not have.
+
+## Placeholders
+
+Every numeric input carries a placeholder in muted grey, prefixed `e.g.` /
+「例如」 so it cannot be mistaken for a value. Placeholders are examples, not
+defaults — the uncertainty fields in particular must still start blank, per
+"Default all uncertainty fields to blank—not an invented value" above.
+
 ## Suggested repository structure
 
 ```text
@@ -520,7 +555,9 @@ molecule-calculator/
 │   └── styles.css
 ├── js/
 │   ├── app.js
+│   ├── biomarkers.js
 │   ├── calculations.js
+│   ├── i18n.js
 │   ├── conversions.js
 │   ├── uncertainty.js
 │   ├── validation.js
@@ -528,6 +565,8 @@ molecule-calculator/
 └── tests/
     ├── conversions.test.js
     ├── calculations.test.js
+    ├── i18n.test.js
+    ├── precision.test.js
     ├── uncertainty.test.js
     └── formatters.test.js
 ```
