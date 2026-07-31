@@ -7,6 +7,11 @@ Enter a volume directly or let the tool compute one from a channel's height,
 width, and length; give a molar or mass concentration; and it reports the
 expected molecule count with every conversion shown.
 
+The page opens on a worked example rather than an empty form — a 10 × 10 × 50 µm
+channel of CRP at 100 pg/mL, which holds 2.618 ± 0.059 molecules and splits
+7.3% empty / 19.1% one / 73.6% two or more. **Reset returns there** rather than
+blanking the form.
+
 ## Running it
 
 There is no build step and no dependencies, but the calculation modules are ES
@@ -39,6 +44,13 @@ English and Traditional Chinese (Taiwan), switchable from the header tab.
 Note that the Chinese readable line uses myriad grouping — 3.01e8 is
 「3.01億」, not 「301 百萬」. The scale tables in `formatters.js` are two
 different systems, not translations of one another.
+
+## Copying a result
+
+“Copy result” puts Markdown on the clipboard — `#` for the result, `##` for
+warnings, occupancy, calculation, interval and assumptions, `###` for each
+numbered step, with the formulae in fenced `text` blocks so the alignment
+survives the paste into a notebook or an issue.
 
 ## How it works
 
@@ -79,7 +91,10 @@ or two or more molecules.
 - [CONTEXT.md](./CONTEXT.md) — the project glossary
 - [docs/adr/](./docs/adr/) — architectural decision records
 
-## Disclaimer
+## Scope
 
-This tool provides an estimate. It does not account for molecular aggregation,
-binding, losses, or concentration gradients unless modeled explicitly.
+This tool reports an expected count from the inputs given. It does not model
+aggregation, surface binding, losses, or concentration gradients — the
+uncertainty card states the assumptions each result rests on, and the
+calculation panel shows every step, so what is and is not accounted for is
+visible in the result itself rather than in a blanket caveat.

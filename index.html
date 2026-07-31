@@ -94,7 +94,15 @@
       <!-- No <form>: without a submit button, Enter inside a form behaves
            inconsistently across browsers. app.js binds Enter explicitly. -->
       <section class="card" aria-labelledby="inputs-heading">
-        <h2 id="inputs-heading" data-i18n="section.inputs">Inputs</h2>
+        <h2 id="inputs-heading">
+          <svg class="icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+            <path d="M4 7h10M18 7h2M4 12h4M12 12h8M4 17h9M17 17h3" />
+            <circle cx="16" cy="7" r="2" />
+            <circle cx="10" cy="12" r="2" />
+            <circle cx="15" cy="17" r="2" />
+          </svg>
+          <span data-i18n="section.inputs">Inputs</span>
+        </h2>
 
         <fieldset class="field-group">
           <legend>
@@ -187,7 +195,14 @@
         </fieldset>
 
         <fieldset class="field-group" id="molecular-weight-group" hidden>
-          <legend><span data-i18n="group.molecularWeight">Molecular weight</span></legend>
+          <legend>
+            <svg class="icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+              <path d="M12 6v13M8.5 19h7M4.5 9h15M12 6a1.4 1.4 0 100-2.8 1.4 1.4 0 000 2.8" />
+              <path d="M4.5 9L2 14a2.6 2.6 0 005 0z" />
+              <path d="M19.5 9L17 14a2.6 2.6 0 005 0z" />
+            </svg>
+            <span data-i18n="group.molecularWeight">Molecular weight</span>
+          </legend>
           <p class="field-note" data-i18n="mw.note">
             Molecular weight is needed only when concentration is expressed as
             mass per volume, such as ng/mL.

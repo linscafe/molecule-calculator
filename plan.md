@@ -207,7 +207,7 @@ $$
 N = n \times N_\mathrm{A}
 $$
 
-where $N_\mathrm{A} = 6.02214076 \times 10^{23}\ \mathrm{mol}^{-1}$.[^4][^3]
+where $N_\mathrm{A} = 6.02214076 \times 10^{23}\ \mathrm{mol}^{-1}$.[^3]
 
 ### Mass concentration
 
@@ -636,7 +636,7 @@ The implementation is complete when:
 - The uncertainty explanation avoids overstating statistical certainty.
 - Recalculation is debounced so the live region announces once per settled edit.
 - Tests pass under `node --test` with no dependencies installed.
-- The page works without a backend and deploys successfully through GitHub Pages.[^2][^1]
+- The page works without a backend and deploys successfully through GitHub Pages.[^1]
 - The design remains usable on desktop and mobile screens.
 
 ## Deferred to version 2
@@ -644,3 +644,14 @@ The implementation is complete when:
 - Particle concentration mode (particles/mL, /µL, /L)
 - Monte Carlo uncertainty propagation
 - Significant-figure tracking through the calculation
+
+## Sources
+
+[^1]: GitHub Docs, *Configuring a publishing source for your GitHub Pages site*.
+[^3]: BIPM, *The International System of Units (SI)*, 9th edition. Since the
+    2019 redefinition the Avogadro constant is fixed at exactly
+    6.02214076 × 10²³ mol⁻¹ — a defined value, not a measurement, so it
+    contributes no uncertainty of its own.
+[^5]: JCGM 100:2008, *Evaluation of measurement data — Guide to the expression
+    of uncertainty in measurement* (GUM), on combined standard uncertainty and
+    the coverage factor k = 2.
