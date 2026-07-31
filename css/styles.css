@@ -459,16 +459,6 @@ button:hover {
   border-color: var(--accent);
 }
 
-.link-button {
-  border: 0;
-  padding: 0;
-  margin-bottom: 0.75rem;
-  color: var(--accent);
-  text-align: left;
-  text-decoration: underline;
-  background: none;
-}
-
 .copy-status {
   font-size: 0.85rem;
   color: var(--text-muted);
@@ -524,6 +514,12 @@ button:hover {
   padding: 0.6rem 0.75rem;
   font-size: 0.9rem;
   margin-bottom: 0.5rem;
+}
+
+/* Inside the input panel this is a standing caveat, not a reaction to a
+   result, so it does not need the leading gap .warning carries elsewhere. */
+#uncertainty-assumption {
+  margin-top: 0.6rem;
 }
 
 .occupancy__heading {

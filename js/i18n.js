@@ -64,8 +64,8 @@ const STRINGS = {
 
     'uncertainty.enable': 'Include input uncertainty',
     'uncertainty.note': 'Leave any field blank to treat that input as exact.',
-    'uncertainty.preset':
-      'Fill a typical laboratory estimate (an assumption, not a measurement)',
+    'uncertainty.assumption':
+      'These uncertainty values are assumptions, not measurements. Replace them with your instrument\u2019s specification or figures from repeated measurements before relying on the interval.',
     'uncertainty.height': 'Height uncertainty',
     'uncertainty.width': 'Width uncertainty',
     'uncertainty.length': 'Length uncertainty',
@@ -197,7 +197,8 @@ const STRINGS = {
 
     'uncertainty.enable': '納入輸入不確定度',
     'uncertainty.note': '任一欄位留白，即視為該輸入為精確值。',
-    'uncertainty.preset': '填入典型實驗室估計值（此為假設，並非量測結果）',
+    'uncertainty.assumption':
+      '這些不確定度為假設值，並非實際量測結果。在依賴此區間之前，請改填您自己的儀器規格，或重複量測所得的數值。',
     'uncertainty.height': '高度不確定度',
     'uncertainty.width': '寬度不確定度',
     'uncertainty.length': '長度不確定度',

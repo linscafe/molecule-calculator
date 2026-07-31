@@ -958,12 +958,6 @@ function wire() {
     el(`${id}-kind`).addEventListener('change', renderNow);
   }
 
-  el('uncertainty-preset').addEventListener('click', () => {
-    el('u-concentration').value = '5';
-    for (const id of ['u-height', 'u-width', 'u-length']) el(id).value = '2';
-    renderNow();
-  });
-
   for (const id of ['lang-en', 'lang-zh']) {
     el(id).addEventListener('change', (event) => {
       if (event.target.checked) changeLocale(event.target.value);
