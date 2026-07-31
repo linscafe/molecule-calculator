@@ -449,10 +449,15 @@ function breakdownSteps(state, result) {
         `C = ${values.concentration} ${label(MASS_CONCENTRATION_UNITS, units.concentration)} = ${scientific(result.gramsPerLitre)} g/L`,
       ],
     });
+    // Echo the entry the way the concentration step does, so the reader can
+    // check what they typed rather than only its converted 3-figure rendering.
+    const enteredMw = `${values.molecularWeight} ${label(MOLECULAR_WEIGHT_UNITS, units.molecularWeight)}`;
     steps.push({
       title: 'Molecular weight',
       lines: [
-        `MW = ${scientific(result.gramsPerMole)} g/mol`,
+        units.molecularWeight === 'g/mol'
+          ? `MW = ${enteredMw}`
+          : `MW = ${enteredMw} = ${scientific(result.gramsPerMole)} g/mol`,
         ...(biomarker
           ? [
               `From ${biomarker.analyte} — ${biomarker.form}` +
