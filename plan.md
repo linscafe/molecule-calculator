@@ -55,9 +55,15 @@ unchanged by both the browser and Node's built-in test runner. There is no
 Use a clean, responsive two-column layout on desktop and a one-column layout on mobile.
 
 1. **Header**
+    - A full-bleed banner spanning both columns, carrying the favicon’s tile
+      gradient and molecule emblem, with the title and subtitle set on top of it
+      in flat white.
     - Title: “Number of Molecules Calculator”
     - Subtitle: “Estimate how many molecules are present in a given volume.”
-    - Small inline SVG illustration of a microfluidic channel containing particles.
+    - Molecules scattered across the banner jitter in place rather than drifting
+      — each with its own amplitude, period and phase, so no two move in step.
+      Brownian motion is also what molecules in a channel actually do.
+    - Language tabs sit in a thin bar above the banner.
 2. **Input card**
     - Dimension/volume input controls
     - Concentration controls
@@ -446,7 +452,6 @@ slip** — meaning 100 µm and leaving the selector on nm, which makes the volum
 
 Use small original inline SVGs, avoiding external image dependencies:
 
-- A microfluidic channel with floating circles representing molecules
 - A beaker or pipette icon next to concentration
 - A cube/cuboid icon next to dimensions
 - A molecule icon next to the output
