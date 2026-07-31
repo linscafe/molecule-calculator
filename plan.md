@@ -63,8 +63,7 @@ Use a clean, responsive two-column layout on desktop and a one-column layout on 
     - Concentration controls
     - Molecular-weight controls, shown only for mass concentration
     - Uncertainty controls
-    - “Calculate Now!” button
-    - Also calculate automatically after valid input changes; the button remains useful for clarity and accessibility.
+    - No submit button — results calculate automatically (see “Recalculation timing”)
 3. **Results card**
     - Large primary result: “Number of molecules”
     - Scientific notation and readable notation, for example: `1.20 × 10¹² molecules`
@@ -412,14 +411,14 @@ block calculation, from **plausibility warnings**, which never do.
 - Require values greater than zero for all physical measurements.
 - Require all three dimensions in dimension mode.
 - Require molecular weight for mass concentration.
-- Disable “Calculate Now!” until required fields are valid.
 - Display errors beside the relevant field, not only as a global message.
+- Show a field's error on blur, not while it is being typed into.
+- Suppress the result while any required field is invalid, and say why.
 
-> Because the button is genuinely `disabled`, it leaves the tab order and
-> becomes unreachable by keyboard and screen reader. To keep the *reason*
-> available, pair it with an `aria-live` status region on the validation
-> summary, announcing which field is blocking and why whenever a field goes
-> invalid.
+Because there is no submit button, validation state is the only signal that a
+result is being withheld. Pair the inline field errors with an `aria-live`
+status region announcing which field is blocking and why, so the reason reaches
+screen-reader users without a control to press.
 
 ### Plausibility warnings
 
@@ -457,7 +456,7 @@ Require:
 - Keyboard navigation and focus states.
 - High-contrast text and color choices.
 - `aria-live="polite"` on the primary result area so screen-reader users hear updated results.
-- `aria-live` on the validation summary, per the note above.
+- `aria-live` on the validation summary, per “Validation errors” above.
 - Unit selectors adjacent to their numeric input.
 - Mobile-friendly numeric keyboard using `inputmode="decimal"`.
 - A “Reset” button that restores sensible empty defaults.
@@ -471,8 +470,36 @@ passes through six valid intermediate states, and because `aria-live="polite"`
 wrong answers before hearing the real one.
 
 - **Debounce recalculation and announcement together, 500 ms after typing stops.**
-- Recalculate immediately on blur, unit change, or button press.
+- Recalculate immediately on blur, on unit change, and on <kbd>Enter</kbd>.
 - One announcement per settled edit.
+
+### There is deliberately no submit button
+
+The calculator has **no “Calculate Now!” button**. Once recalculation is
+debounced and automatic, a submit button computes nothing that has not already
+been computed 500 ms earlier — by the time every field is valid, the result is
+already on screen and already announced. A control whose only remaining
+function is to re-trigger work that has finished is not clarity, it is a dead
+affordance.
+
+Removing it also dissolves an accessibility problem rather than mitigating one.
+A button disabled until the form is valid leaves the tab order entirely and
+becomes unreachable by keyboard and screen reader, offering no statement of
+why; a button left enabled invites presses that do nothing. Neither trade-off
+has to be made if the control does not exist.
+
+**Do not add one back.** The affordances that remain — “Reset” and “Copy
+result” — are the ones that perform an action the page has not already taken.
+
+Two consequences follow, and both must be handled:
+
+- **Do not wrap the inputs in a `<form>`.** Without a submit button, <kbd>Enter</kbd>
+  inside a form field behaves inconsistently across browsers. Use a plain
+  container and bind <kbd>Enter</kbd> explicitly.
+- **<kbd>Enter</kbd> must still do something**, because users will press it and
+  mobile keyboards show a Go/Done key. Bind it to flush the debounce: calculate
+  immediately, re-announce the result, and blur the field so the mobile keyboard
+  dismisses.
 
 ## Suggested repository structure
 
@@ -516,7 +543,8 @@ The implementation is complete when:
 - The calculation details display every conversion and formula used, including the biomarker molecular form where one was selected.
 - Mass concentration requires molecular weight and correctly converts to molar quantity.
 - Every biomarker entry names its molecular form, and ambiguous biomarkers mark a recommended form with a stated reason.
-- Invalid inputs show clear, local validation messages, and the reason the calculate button is blocked is announced.
+- Invalid inputs show clear, local validation messages, and the reason a result is being withheld is announced.
+- The page has no submit button; results appear automatically, and <kbd>Enter</kbd> flushes the debounce.
 - The calculator reports an uncertainty interval only when uncertainty inputs are supplied.
 - The uncertainty interval never displays a negative lower bound, and warns above 30% relative uncertainty.
 - Results below 10 molecules show occupancy probabilities.
