@@ -3,14 +3,12 @@
 An educational calculator that estimates how many molecules are present in a
 given volume, for microfluidic, nanofluidic, laboratory, and teaching use.
 
+> Try it and see the ultimate limit of your biosensor!
+> Don’t be too surprised if you find zero molecules to detect.
+
 Enter a volume directly or let the tool compute one from a channel's height,
 width, and length; give a molar or mass concentration; and it reports the
 expected molecule count with every conversion shown.
-
-The page opens on a worked example rather than an empty form — a 10 × 10 × 50 µm
-channel of CRP at 100 pg/mL, which holds 2.618 ± 0.059 molecules and splits
-7.3% empty / 19.1% one / 73.6% two or more. **Reset returns there** rather than
-blanking the form, so "default" means one thing.
 
 ## Running it
 
